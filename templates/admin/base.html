@@ -4,7 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Admin{% endblock %} — {{ settings.store_name }}</title>
+  {% if settings.logo %}
+  <link rel="icon" type="image/webp" href="/static/{{ settings.logo }}">
+  {% else %}
   <link rel="icon" href="/static/favicon/favicon.ico">
+  {% endif %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,7 +25,11 @@
   <!-- ── Sidebar ─────────────────────────────────────────────────── -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <div class="brand-dot">S</div>
+      {% if settings.logo %}
+      <img src="/static/{{ settings.logo }}" alt="{{ settings.store_name }}" class="sidebar-logo-img">
+      {% else %}
+      <div class="brand-dot">{{ settings.store_name[0] }}</div>
+      {% endif %}
       <span>{{ settings.store_name }}</span>
     </div>
 

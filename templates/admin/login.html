@@ -4,7 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>লগইন — {{ settings.store_name }}</title>
+  {% if settings.logo %}
+  <link rel="icon" type="image/webp" href="/static/{{ settings.logo }}">
+  {% else %}
   <link rel="icon" href="/static/favicon/favicon.ico">
+  {% endif %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/admin.css">
@@ -13,7 +17,11 @@
 <div class="login-page">
   <div class="login-card">
     <div class="login-logo">
-      <div class="brand-dot">S</div>
+      {% if settings.logo %}
+      <img src="/static/{{ settings.logo }}" alt="{{ settings.store_name }}" class="login-logo-img">
+      {% else %}
+      <div class="brand-dot">{{ settings.store_name[0] }}</div>
+      {% endif %}
       {{ settings.store_name }}
     </div>
 

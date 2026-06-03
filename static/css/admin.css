@@ -65,6 +65,14 @@ input, select, textarea, button { font-family: var(--font); }
   color: #fff;
 }
 .sidebar-brand img { width: 32px; height: 32px; border-radius: 8px; object-fit: contain; }
+.sidebar-logo-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  object-fit: contain;
+  background: rgba(255,255,255,.1);
+  flex-shrink: 0;
+}
 .sidebar-brand .brand-dot {
   width: 32px;
   height: 32px;
@@ -608,6 +616,12 @@ select.form-control { appearance: auto; }
 }
 .login-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
 .login-sub { font-size: .85rem; color: var(--admin-muted); margin-bottom: 28px; }
+.login-logo-img {
+  height: 44px;
+  max-width: 120px;
+  object-fit: contain;
+  border-radius: 10px;
+}
 .error-msg {
   background: #fee2e2;
   color: #991b1b;
