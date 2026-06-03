@@ -203,16 +203,21 @@ async def api_suggestions(q: str = ""):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @app.get("/", response_class=HTMLResponse)
-async def homepage(request: Request):
+async def homepage(request: Request, page: int = 1):
     async for db in get_db():
         base       = await ctx(request, db)
         categories = await fetch_categories(db)
         featured   = await fetch_products(db, featured_only=True, limit=8)
-        products   = await fetch_products(db, limit=20)
 
-        # Hero needs exactly 5 slider products; fill from regular products if fewer featured
+        per_page = 20
+        offset   = (page - 1) * per_page
+        total    = await count_products(db)
+        products = await fetch_products(db, limit=per_page, offset=offset)
+        pages    = math.ceil(total / per_page) if total else 1
+
+        # Hero slider: up to 7 products (featured first, fill from regular)
         slider = list(featured[:7])
-        if len(slider) < 5:
+        if len(slider) < 7:
             fids  = {p["id"] for p in slider}
             extra = await fetch_products(db, limit=10)
             for p in extra:
@@ -227,6 +232,9 @@ async def homepage(request: Request):
             "featured":   featured,
             "slider":     slider,
             "products":   products,
+            "page":       page,
+            "pages":      pages,
+            "total":      total,
         })
 
 
@@ -276,16 +284,21 @@ async def product_detail(slug: str, request: Request):
 
 
 @app.get("/search", response_class=HTMLResponse)
-async def search_page(request: Request, q: str = ""):
+async def search_page(request: Request, q: str = "", page: int = 1):
     async for db in get_db():
         base = await ctx(request, db)
-        products = []
-        if q.strip():
-            products = await fetch_products(db, search=q.strip(), limit=40)
         categories = await fetch_categories(db)
+        products, total, pages = [], 0, 1
+        if q.strip():
+            per_page = 20
+            offset   = (page - 1) * per_page
+            total    = await count_products(db, search=q.strip())
+            products = await fetch_products(db, search=q.strip(), limit=per_page, offset=offset)
+            pages    = math.ceil(total / per_page) if total else 1
         return templates.TemplateResponse(request,
             "shop/search.html",
-            {**base, "products": products, "q": q, "categories": categories},
+            {**base, "products": products, "q": q,
+             "categories": categories, "page": page, "pages": pages, "total": total},
         )
 
 
