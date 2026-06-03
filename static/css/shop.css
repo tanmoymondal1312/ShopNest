@@ -339,13 +339,26 @@ input, select, textarea { font-family: var(--font); }
 .navbar-wa-btn:hover { background: #dcfce7; }
 .navbar-wa-btn-text { display: none; }
 @media (min-width: 900px) { .navbar-wa-btn-text { display: inline; } }
-/* Mobile: icon-only compact button */
+/* Mobile: green WhatsApp circle icon right beside cart */
 @media (max-width: 479px) {
   .navbar-wa-btn {
-    padding: 8px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: #25d366;
+    border: none;
     border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
     gap: 0;
+    box-shadow: 0 2px 8px rgba(37,211,102,.35);
   }
+  .navbar-wa-btn svg { width: 19px; height: 19px; }
+  .navbar-wa-btn:hover { background: #1db954; }
+  /* Pull WA + cart together, push search toggle further left */
+  .navbar-actions { gap: 6px; }
+  .navbar-search-toggle { margin-right: auto; }
 }
 
 /* Cart pill */
