@@ -136,11 +136,18 @@
     <h2 class="section-title">সব পণ্য</h2>
 
     <!-- Category pills — AJAX filtering, no full page reload -->
-    <div class="category-scroll" id="cat-pills" style="margin-bottom:24px;">
-      <button class="cat-pill active" data-cat="">🏪 সব পণ্য</button>
-      {% for cat in categories %}
-      <button class="cat-pill" data-cat="{{ cat.slug }}">{{ cat.name }}</button>
-      {% endfor %}
+    <div class="cat-scroll-wrap" style="margin-bottom:24px;">
+      <div class="category-scroll" id="cat-pills">
+        <button class="cat-pill active" data-cat="">🏪 সব পণ্য</button>
+        {% for cat in categories %}
+        <button class="cat-pill" data-cat="{{ cat.slug }}">{{ cat.name }}</button>
+        {% endfor %}
+      </div>
+      <div class="cat-scroll-arrow" aria-hidden="true">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
     </div>
 
     <!-- Skeleton shown while grid loads -->
