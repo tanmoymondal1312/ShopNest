@@ -759,20 +759,25 @@ input, select, textarea { font-family: var(--font); }
   gap: 20px;
 }
 @media (max-width: 1024px) { .featured-scroll { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 768px)  {
-  /* 2-row horizontal scroll: products fill top row first, then bottom row */
+@media (max-width: 768px) {
+  /* 2-row horizontal scroll via flex column + wrap */
   .featured-scroll {
-    display: grid;
-    grid-template-rows: repeat(2, auto);
-    grid-auto-flow: column;
-    grid-auto-columns: 160px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    max-height: 560px;   /* ~2 product cards tall (265px each + 12px gap) */
     gap: 12px;
     overflow-x: auto;
-    overflow-y: visible;
-    padding-bottom: 8px;
+    overflow-y: hidden;
+    padding-bottom: 6px;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
   .featured-scroll::-webkit-scrollbar { display: none; }
+  .featured-scroll .product-card {
+    width: 155px;
+    flex: none;           /* prevent flex from resizing the card */
+  }
 }
 
 /* ── PRODUCT DETAIL PAGE ───────────────────────────────────────────────────── */
