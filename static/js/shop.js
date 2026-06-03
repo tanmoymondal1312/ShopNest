@@ -204,6 +204,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ── Category scroll arrow: click scrolls right, hides at end ──────────────
+  const catPillsEl = document.getElementById('cat-pills');
+  const catWrap    = catPillsEl?.closest('.cat-scroll-wrap');
+  const catBtn     = document.getElementById('cat-scroll-btn');
+
+  if (catPillsEl && catWrap && catBtn) {
+    const checkEnd = () => {
+      const atEnd = catPillsEl.scrollLeft + catPillsEl.clientWidth >= catPillsEl.scrollWidth - 4;
+      catWrap.classList.toggle('scroll-end', atEnd);
+    };
+    catBtn.addEventListener('click', () => {
+      catPillsEl.scrollBy({ left: 200, behavior: 'smooth' });
+    });
+    catPillsEl.addEventListener('scroll', checkEnd, { passive: true });
+    window.addEventListener('resize', checkEnd);
+    checkEnd(); // run on load
+  }
+
   // ── Homepage: category pill interception + initial grid load ──────────────
   const catPills = document.getElementById('cat-pills');
   if (catPills) {
