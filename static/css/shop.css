@@ -323,7 +323,7 @@ input, select, textarea { font-family: var(--font); }
 
 /* WhatsApp pill */
 .navbar-wa-btn {
-  display: none;
+  display: flex;
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
@@ -337,7 +337,16 @@ input, select, textarea { font-family: var(--font); }
   white-space: nowrap;
 }
 .navbar-wa-btn:hover { background: #dcfce7; }
-@media (min-width: 900px) { .navbar-wa-btn { display: flex; } }
+.navbar-wa-btn-text { display: none; }
+@media (min-width: 900px) { .navbar-wa-btn-text { display: inline; } }
+/* Mobile: icon-only compact button */
+@media (max-width: 479px) {
+  .navbar-wa-btn {
+    padding: 8px;
+    border-radius: 50%;
+    gap: 0;
+  }
+}
 
 /* Cart pill */
 .cart-btn {
