@@ -1378,7 +1378,40 @@ input, select, textarea { font-family: var(--font); }
   padding: 52px 16px 40px;
 }
 @media (max-width: 1024px) { .ft-body { grid-template-columns: 1fr 1fr; gap: 32px; } }
-@media (max-width: 480px)  { .ft-body { grid-template-columns: 1fr; gap: 28px; padding: 36px 16px 28px; } }
+@media (max-width: 480px) {
+  .ft-body {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 16px;
+    padding: 24px 16px 16px;
+  }
+  /* Brand spans full width */
+  .ft-brand { grid-column: 1 / -1; gap: 10px; }
+  /* Shorter brand description on mobile */
+  .ft-brand-desc { display: none; }
+  /* Smaller WhatsApp button */
+  .ft-wa-btn { font-size: .72rem; padding: 7px 12px; }
+  /* Smaller social icons */
+  .ft-social { width: 30px; height: 30px; border-radius: 8px; }
+  /* Compact link columns */
+  .ft-col { gap: 10px; }
+  .ft-links { gap: 6px; }
+  .ft-links li a { font-size: .75rem; }
+  .ft-col-title { font-size: .7rem; }
+  /* Contact items compact */
+  .ft-contact-list { gap: 10px; }
+  .ft-contact-label { font-size: .6rem; }
+  .ft-contact-value { font-size: .72rem; }
+  /* Bottom bar stacked */
+  .ft-bottom {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    padding: 14px 16px;
+  }
+  .ft-badges { justify-content: center; }
+  .ft-badge { font-size: .6rem; padding: 2px 7px; }
+}
 
 /* ── Brand column ── */
 .ft-brand { display: flex; flex-direction: column; gap: 14px; }
