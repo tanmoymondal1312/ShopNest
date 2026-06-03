@@ -798,6 +798,16 @@ input, select, textarea { font-family: var(--font); }
   .featured-scroll .price-current { font-size: .78rem; }
   .featured-scroll .price-old     { font-size: .62rem; }
   .featured-scroll .btn-add-cart  { display: none; }
+  /* Tiny badges for compact cards */
+  .featured-scroll .badge-sale,
+  .featured-scroll .badge-featured {
+    font-size: .5rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+  }
 }
 
 /* ── PRODUCT DETAIL PAGE ───────────────────────────────────────────────────── */
