@@ -1,0 +1,39 @@
+{% if products %}
+<p class="pg-count">{{ total }}টি পণ্য পাওয়া গেছে</p>
+<div class="product-grid">
+  {% for product in products %}
+  {% include "includes/product_card.html" %}
+  {% endfor %}
+</div>
+
+{% if pages > 1 %}
+<div class="pagination">
+  {% if page > 1 %}
+  <a href="#" data-page="{{ page - 1 }}" class="page-link pg-nav">‹</a>
+  {% else %}
+  <span class="page-link disabled">‹</span>
+  {% endif %}
+
+  {% for p in range(1, pages + 1) %}
+  <a href="#" data-page="{{ p }}"
+     class="page-link pg-nav {% if p == page %}active{% endif %}">{{ p }}</a>
+  {% endfor %}
+
+  {% if page < pages %}
+  <a href="#" data-page="{{ page + 1 }}" class="page-link pg-nav">›</a>
+  {% else %}
+  <span class="page-link disabled">›</span>
+  {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+  <svg width="80" height="80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
+  </svg>
+  <h2>কোনো পণ্য নেই</h2>
+  <p>{% if q %}"{{ q }}" এই নামে পণ্য পাওয়া যায়নি।{% else %}এই ক্যাটাগরিতে কোনো পণ্য নেই।{% endif %}</p>
+</div>
+{% endif %}

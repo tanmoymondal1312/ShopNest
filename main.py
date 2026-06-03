@@ -203,19 +203,14 @@ async def api_suggestions(q: str = ""):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @app.get("/", response_class=HTMLResponse)
-async def homepage(request: Request, page: int = 1):
+async def homepage(request: Request):
     async for db in get_db():
         base       = await ctx(request, db)
         categories = await fetch_categories(db)
+        # Only fetch the 8 featured — products grid loads via /api/products-grid after page paint
         featured   = await fetch_products(db, featured_only=True, limit=8)
 
-        per_page = 20
-        offset   = (page - 1) * per_page
-        total    = await count_products(db)
-        products = await fetch_products(db, limit=per_page, offset=offset)
-        pages    = math.ceil(total / per_page) if total else 1
-
-        # Hero slider: up to 7 products (featured first, fill from regular)
+        # Slider: up to 7 (featured first, fill from regular if needed)
         slider = list(featured[:7])
         if len(slider) < 7:
             fids  = {p["id"] for p in slider}
@@ -231,11 +226,46 @@ async def homepage(request: Request, page: int = 1):
             "categories": categories,
             "featured":   featured,
             "slider":     slider,
-            "products":   products,
-            "page":       page,
-            "pages":      pages,
-            "total":      total,
         })
+
+
+# ─── Products grid API (AJAX, used by homepage for deferred loading) ─────────
+
+@app.get("/api/products-grid", response_class=HTMLResponse)
+async def api_products_grid(
+    request: Request,
+    page: int = 1,
+    cat:  str = "",
+    q:    str = "",
+):
+    async for db in get_db():
+        s        = await get_settings(db)
+        per_page = 20
+        offset   = (page - 1) * per_page
+
+        cat_id = None
+        if cat:
+            cat_obj = await fetch_category_by_slug(db, cat)
+            cat_id  = cat_obj["id"] if cat_obj else None
+
+        search   = q.strip() or None
+        total    = await count_products(db, category_id=cat_id, search=search)
+        products = await fetch_products(db, category_id=cat_id, search=search,
+                                         limit=per_page, offset=offset)
+        pages    = math.ceil(total / per_page) if total else 1
+
+        return templates.TemplateResponse(request,
+            "shop/partials/product_grid.html",
+            {
+                "settings": s,
+                "products": products,
+                "page":     page,
+                "pages":    pages,
+                "total":    total,
+                "cat":      cat,
+                "q":        q,
+            }
+        )
 
 
 @app.get("/category/{slug}", response_class=HTMLResponse)

@@ -141,6 +141,57 @@ window.submitOrder = async function (formEl, btnEl) {
   }
 };
 
+// ── Homepage deferred product grid ────────────────────────────────────────────
+const _gridCache = {};
+let _currentCat  = '';
+let _currentPage = 1;
+
+async function loadProductsGrid(cat = '', page = 1) {
+  const key       = `${cat}|${page}`;
+  const container = document.getElementById('products-grid-container');
+  if (!container) return;
+
+  _currentCat  = cat;
+  _currentPage = page;
+
+  // Update pill active states immediately (instant visual feedback)
+  document.querySelectorAll('#cat-pills .cat-pill').forEach(pill => {
+    pill.classList.toggle('active', pill.dataset.cat === cat);
+  });
+
+  // Show skeleton only on first load (cached loads are instant)
+  if (!_gridCache[key]) {
+    container.innerHTML =
+      '<div class="skeleton-grid">' +
+      Array(8).fill('<div class="skeleton-card"></div>').join('') +
+      '</div>';
+    try {
+      const res = await fetch(
+        `/api/products-grid?cat=${encodeURIComponent(cat)}&page=${page}`
+      );
+      if (!res.ok) throw new Error();
+      _gridCache[key] = await res.text();
+    } catch {
+      container.innerHTML =
+        '<p style="color:var(--text-muted);padding:32px 0;">লোড হয়নি — পুনরায় চেষ্টা করুন।</p>';
+      return;
+    }
+  }
+
+  container.innerHTML = _gridCache[key];
+
+  // Wire pagination links inside the loaded HTML
+  container.querySelectorAll('.pg-nav').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const pg = parseInt(link.dataset.page);
+      if (pg) loadProductsGrid(_currentCat, pg);
+      document.getElementById('all-products')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
 // ── Navbar search on Enter ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('navbar-search');
@@ -151,6 +202,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (q) window.location.href = `/search?q=${encodeURIComponent(q)}`;
       }
     });
+  }
+
+  // ── Homepage: category pill interception + initial grid load ──────────────
+  const catPills = document.getElementById('cat-pills');
+  if (catPills) {
+    catPills.addEventListener('click', e => {
+      const pill = e.target.closest('.cat-pill');
+      if (pill) loadProductsGrid(pill.dataset.cat || '', 1);
+    });
+    // Load first page after browser paints the above-the-fold content
+    requestAnimationFrame(() => loadProductsGrid('', 1));
   }
 
   // Close cart on Escape
