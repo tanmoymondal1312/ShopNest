@@ -366,7 +366,7 @@ input, select, textarea { font-family: var(--font); }
 .cart-btn-icon  { display: flex; align-items: center; flex-shrink: 0; }
 .cart-btn-label { display: none; font-size: .8rem; font-weight: 700; }
 @media (min-width: 480px) { .cart-btn-label { display: block; } }
-@media (max-width: 479px) { .cart-btn { margin-left: 20px; } }
+@media (max-width: 479px) { .cart-btn { margin-left: 80px; } }
 
 .cart-badge {
   display: flex;
@@ -752,23 +752,15 @@ input, select, textarea { font-family: var(--font); }
 .btn-add-cart:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
 @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03); } }
 
-/* ── FEATURED ROW (horizontal scroll on mobile) ────────────────────────────── */
+/* ── FEATURED ROW ────────────────────────────────────────────────────────────── */
 .featured-scroll {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
 }
-@media (max-width: 768px) {
-  .featured-scroll {
-    display: flex;
-    overflow-x: auto;
-    scrollbar-width: none;
-    gap: 14px;
-    padding-bottom: 8px;
-  }
-  .featured-scroll::-webkit-scrollbar { display: none; }
-  .featured-scroll .product-card { min-width: 200px; }
-}
+@media (max-width: 1024px) { .featured-scroll { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .featured-scroll { grid-template-columns: repeat(2, 1fr); gap: 14px; } }
+@media (max-width: 480px)  { .featured-scroll { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
 
 /* ── PRODUCT DETAIL PAGE ───────────────────────────────────────────────────── */
 .breadcrumb {
