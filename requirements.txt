@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+jinja2
+aiosqlite
+itsdangerous
+Pillow
+python-multipart
+python-dotenv

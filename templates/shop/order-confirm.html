@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}অর্ডার নিশ্চিত হয়েছে — {{ settings.store_name }}{% endblock %}
+
+{% block content %}
+<div class="order-confirm-wrap">
+
+  <!-- Animated checkmark -->
+  <div class="checkmark-circle">
+    <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#22c55e" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+    </svg>
+  </div>
+
+  <h1>অর্ডার পাওয়া গেছে! 🎉</h1>
+  <p style="color:var(--text-muted);margin-bottom:12px;">আপনার অর্ডার সফলভাবে জমা হয়েছে।</p>
+  <div class="order-id-tag">অর্ডার #{{ order.id }}</div>
+
+  <!-- Order summary card -->
+  <div class="order-summary-card">
+    <div style="margin-bottom:12px;">
+      <strong>{{ order.customer_name }}</strong>
+      <span style="color:var(--text-muted);font-size:.85rem;margin-left:8px;">{{ order.customer_phone }}</span>
+    </div>
+    {% if order.address %}
+    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:12px;">📍 {{ order.address }}</p>
+    {% endif %}
+
+    <div class="order-items-list">
+      {% for item in items %}
+      <div class="order-item-row">
+        <span>{{ item.product_name }} × {{ item.quantity }}</span>
+        <span>{{ settings.currency_symbol }}{{ "%.2f"|format(item.price * item.quantity) }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="order-total">
+      <span>মোট</span>
+      <span>{{ settings.currency_symbol }}{{ "%.2f"|format(order.total) }}</span>
+    </div>
+  </div>
+
+  <!-- WhatsApp CTA -->
+  {% if settings.whatsapp %}
+  {% set wa_msg = "নতুন অর্ডার! 🛒\nঅর্ডার ID: #" + order.id + "\nনাম: " + order.customer_name + "\nফোন: " + order.customer_phone %}
+  {% if order.address %}{% set wa_msg = wa_msg + "\nঠিকানা: " + order.address %}{% endif %}
+  {% set wa_msg = wa_msg + "\n\nপণ্য:" %}
+  {% for item in items %}{% set wa_msg = wa_msg + "\n• " + item.product_name + " x " + item.quantity|string + " — " + settings.currency_symbol + (item.price * item.quantity)|round(2)|string %}{% endfor %}
+  {% set wa_msg = wa_msg + "\n\nমোট: " + settings.currency_symbol + order.total|round(2)|string %}
+
+  <a href="https://wa.me/{{ settings.whatsapp }}?text={{ wa_msg | urlencode }}"
+     class="btn-whatsapp" target="_blank" rel="noopener">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.07L2 22l5.07-1.35A9.952 9.952 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.65 0-3.18-.47-4.49-1.28l-.32-.19-3.01.8.82-2.98-.21-.33A7.946 7.946 0 014 12c0-4.42 3.58-8 8-8s8 3.58 8 8-3.58 8-8 8z"/>
+    </svg>
+    WhatsApp-এ নিশ্চিত করুন
+  </a>
+  {% else %}
+  <p style="background:#fff3cd;border:1px solid #ffd700;padding:14px;border-radius:12px;font-size:.9rem;color:#856404;margin-bottom:16px;">
+    📞 আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।
+  </p>
+  {% endif %}
+
+  <a href="/" class="btn-continue">← কেনাকাটা চালিয়ে যান</a>
+</div>
+{% endblock %}

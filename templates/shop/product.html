@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} — {{ settings.store_name }}{% endblock %}
+{% block meta_desc %}{{ product.description[:150] if product.description else product.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="section">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a href="/">হোম</a>
+      <span>›</span>
+      {% if product.category_slug %}
+      <a href="/category/{{ product.category_slug }}">{{ product.category_name }}</a>
+      <span>›</span>
+      {% endif %}
+      <span>{{ product.name }}</span>
+    </nav>
+
+    <!-- Product layout -->
+    <div class="product-detail-grid" x-data="{ qty: 1 }">
+
+      <!-- Image -->
+      <div class="product-detail-img">
+        {% if product.image %}
+        <img src="/static/uploads/products/{{ product.image }}" alt="{{ product.name }}"
+             width="800" height="800">
+        {% else %}
+        <div class="product-detail-placeholder">📦</div>
+        {% endif %}
+      </div>
+
+      <!-- Info -->
+      <div class="product-detail-info">
+        <h1>{{ product.name }}</h1>
+
+        <div class="product-detail-price">
+          <span class="price-current">{{ settings.currency_symbol }}{{ "%.2f"|format(product.price) }}</span>
+          {% if product.old_price and product.old_price > product.price %}
+          <span class="price-old">{{ settings.currency_symbol }}{{ "%.2f"|format(product.old_price) }}</span>
+          <span class="badge-sale" style="position:static;margin-left:4px;">{{ ((1 - product.price / product.old_price) * 100) | int }}% ছাড়</span>
+          {% endif %}
+        </div>
+
+        <!-- Stock badge -->
+        {% if product.stock == 0 %}
+        <span class="stock-badge no-stock">● স্টক নেই</span>
+        {% elif product.stock < 5 %}
+        <span class="stock-badge low-stock">● মাত্র {{ product.stock }}টি বাকি</span>
+        {% else %}
+        <span class="stock-badge in-stock">● স্টকে আছে</span>
+        {% endif %}
+
+        {% if product.description %}
+        <div class="product-detail-desc">{{ product.description }}</div>
+        {% endif %}
+
+        {% if product.stock > 0 %}
+        <!-- Qty selector -->
+        <div class="qty-selector">
+          <label>পরিমাণ:</label>
+          <div class="qty-control">
+            <button @click="qty = Math.max(1, qty - 1)">−</button>
+            <input type="number" :value="qty" min="1" max="{{ product.stock }}"
+                   @input="qty = Math.max(1, Math.min({{ product.stock }}, parseInt($event.target.value)||1))">
+            <button @click="qty = Math.min({{ product.stock }}, qty + 1)">+</button>
+          </div>
+        </div>
+
+        <button class="btn-add-cart-lg"
+          @click="
+            for(let i=0;i<qty;i++){
+              $store.cart.addItem({
+                id: {{ product.id }},
+                slug: '{{ product.slug }}',
+                name: '{{ product.name | replace("'", "\\'") }}',
+                price: {{ product.price }},
+                image: '{{ product.image or "" }}'
+              })
+            }
+          ">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m1.6 8l-1.4 7h12.8M10 20a1 1 0 100-2 1 1 0 000 2zm7 0a1 1 0 100-2 1 1 0 000 2z"/>
+          </svg>
+          কার্টে যোগ করুন
+        </button>
+        {% else %}
+        <button class="btn-add-cart-lg" disabled>স্টক নেই</button>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Related products -->
+    {% if related %}
+    <section style="margin-top:48px;">
+      <h2 class="section-title">একই ধরনের পণ্য</h2>
+      <div class="product-grid">
+        {% for product in related %}
+        {% include "includes/product_card.html" %}
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

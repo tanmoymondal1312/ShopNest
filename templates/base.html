@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ settings.store_name }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}{{ settings.tagline }}{% endblock %}">
+  <link rel="icon" href="/static/favicon/favicon.ico">
+  <link rel="apple-touch-icon" href="/static/favicon/apple-touch-icon.png">
+
+  <!-- Hind Siliguri (Bengali + Latin) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ static_url('css/shop.css') }}">
+  {% block extra_css %}{% endblock %}
+
+  <!-- Dynamic accent overrides — MUST come after shop.css so it wins the cascade -->
+  <style>:root {
+    --accent:      {{ settings.accent_color }};
+    --accent-dark: {{ settings.accent_color | darken(28) }};
+    --accent-rgb:  {{ settings.accent_color | to_rgb }};
+  }</style>
+
+  <!-- Alpine.js (deferred) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+
+  <script>
+    // Make currency available to cart JS before Alpine initializes
+    window.CURRENCY = "{{ settings.currency_symbol }}";
+  </script>
+</head>
+<body x-data>
+  {% include "includes/navbar.html" %}
+
+  {% block content %}{% endblock %}
+
+  {% include "includes/footer.html" %}
+
+  <!-- ── Cart Drawer ─────────────────────────────────────────────── -->
+  <div x-show="$store.cart.open" x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+       @click="$store.cart.closeDrawer()"
+       class="cart-overlay" style="display:none;"></div>
+
+  <div :class="{'open': $store.cart.open}" class="cart-drawer">
+    <div class="cart-header">
+      <span>🛒 কার্ট (<span x-text="$store.cart.count">0</span>)</span>
+      <button class="cart-close" @click="$store.cart.closeDrawer()" aria-label="বন্ধ করুন">&times;</button>
+    </div>
+
+    <div class="cart-items">
+      <template x-if="$store.cart.items.length === 0">
+        <div class="cart-empty">
+          <svg width="60" height="60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m1.6 8l-1.4 7h12.8M10 20a1 1 0 100-2 1 1 0 000 2zm7 0a1 1 0 100-2 1 1 0 000 2z"/>
+          </svg>
+          <p>আপনার কার্ট খালি</p>
+        </div>
+      </template>
+
+      <template x-for="item in $store.cart.items" :key="item.id">
+        <div class="cart-item">
+          <img :src="item.image ? '/static/uploads/products/' + item.image : '/static/favicon/favicon.svg'"
+               :alt="item.name" class="cart-item-img">
+          <div class="cart-item-info">
+            <div class="cart-item-name" x-text="item.name"></div>
+            <div class="cart-item-price" x-text="window.CURRENCY + (item.price * item.qty).toFixed(2)"></div>
+            <div class="cart-item-qty">
+              <button @click="$store.cart.updateQty(item.id, item.qty - 1)">−</button>
+              <span x-text="item.qty"></span>
+              <button @click="$store.cart.updateQty(item.id, item.qty + 1)">+</button>
+              <button class="cart-item-remove" @click="$store.cart.removeItem(item.id)" title="সরান">✕</button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <div class="cart-footer" x-show="$store.cart.items.length > 0">
+      <div class="cart-subtotal">
+        <span>মোট</span>
+        <span x-text="window.CURRENCY + $store.cart.total.toFixed(2)"></span>
+      </div>
+      <button class="btn-checkout" @click="$store.cart.openCheckout()">অর্ডার করুন →</button>
+    </div>
+  </div>
+
+  <!-- ── Checkout Modal ──────────────────────────────────────────── -->
+  <div class="checkout-modal-overlay" x-show="$store.cart.checkoutOpen"
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+       style="display:none;">
+    <div class="checkout-modal" @click.stop x-data="{ submitting: false }">
+      <h2>📦 অর্ডারের বিবরণ</h2>
+      <form id="checkout-form" @submit.prevent="
+        submitting = true;
+        submitOrder($el, $el.querySelector('[type=submit]'))
+          .finally(() => submitting = false)
+      ">
+        <div class="form-group">
+          <label>আপনার নাম <span style="color:#ef4444">*</span></label>
+          <input type="text" name="name" placeholder="আপনার পুরো নাম লিখুন" required>
+        </div>
+        <div class="form-group">
+          <label>মোবাইল নম্বর <span style="color:#ef4444">*</span></label>
+          <input type="tel" name="phone" placeholder="01XXXXXXXXX" required>
+        </div>
+        <div class="form-group">
+          <label>ডেলিভারি ঠিকানা</label>
+          <textarea name="address" placeholder="পূর্ণ ঠিকানা (বাড়ি, গ্রাম/এলাকা, জেলা)"></textarea>
+        </div>
+        <div class="form-group">
+          <label>বিশেষ নির্দেশনা (ঐচ্ছিক)</label>
+          <input type="text" name="note" placeholder="রঙ, সাইজ বা বিশেষ কিছু থাকলে লিখুন">
+        </div>
+        <div class="checkout-actions">
+          <button type="button" class="btn-cancel" @click="$store.cart.closeCheckout()">বাতিল</button>
+          <button type="submit" class="btn-submit-order" :disabled="submitting">
+            <span x-show="!submitting">অর্ডার দিন</span>
+            <span x-show="submitting">অপেক্ষা করুন…</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="{{ static_url('js/shop.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

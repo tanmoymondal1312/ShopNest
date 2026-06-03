@@ -1,0 +1,111 @@
+{% extends "admin/base.html" %}
+{% block title %}পণ্যসমূহ{% endblock %}
+{% block page_title %}পণ্যসমূহ{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">পণ্যসমূহ</div>
+    <div class="page-subtitle">{{ total }} টি পণ্য পাওয়া গেছে</div>
+  </div>
+  <a href="/admin/products/new" class="btn btn-primary">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/>
+    </svg>
+    নতুন পণ্য
+  </a>
+</div>
+
+<!-- Filters -->
+<form class="filters-bar" method="get">
+  <input class="filter-input" type="search" name="q" value="{{ q }}" placeholder="পণ্যের নাম খুঁজুন…">
+  <select class="filter-select" name="cat">
+    <option value="">সব ক্যাটাগরি</option>
+    {% for c in categories %}
+    <option value="{{ c.id }}" {% if cat == c.id|string %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-secondary" type="submit">ফিল্টার</button>
+  {% if q or cat %}<a href="/admin/products" class="btn btn-secondary">রিসেট</a>{% endif %}
+</form>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th width="50">ছবি</th>
+          <th>নাম</th>
+          <th>ক্যাটাগরি</th>
+          <th>দাম</th>
+          <th>স্টক</th>
+          <th>স্ট্যাটাস</th>
+          <th width="120">অ্যাকশন</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr>
+          <td>
+            {% if p.image %}
+            <img src="/static/uploads/products/{{ p.image }}" alt="{{ p.name }}" class="table-img">
+            {% else %}
+            <div class="table-img-placeholder">📦</div>
+            {% endif %}
+          </td>
+          <td>
+            <a href="/admin/products/{{ p.id }}/edit" style="font-weight:600;color:var(--admin-accent);">{{ p.name }}</a>
+            {% if p.is_featured %}<span class="status-badge" style="background:#fef9c3;color:#854d0e;margin-left:4px;">★ বিশেষ</span>{% endif %}
+          </td>
+          <td style="color:var(--admin-muted);">{{ p.category_name or '—' }}</td>
+          <td>
+            {{ settings.currency_symbol }}{{ "%.2f"|format(p.price) }}
+            {% if p.old_price %}<br><small style="color:var(--admin-muted);text-decoration:line-through;">{{ settings.currency_symbol }}{{ "%.2f"|format(p.old_price) }}</small>{% endif %}
+          </td>
+          <td>
+            <span class="status-badge {% if p.stock == 0 %}status-cancelled{% elif p.stock < 5 %}status-pending{% else %}status-delivered{% endif %}">
+              {{ p.stock }}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge {% if p.is_active %}status-delivered{% else %}status-cancelled{% endif %}">
+              {% if p.is_active %}সক্রিয়{% else %}নিষ্ক্রিয়{% endif %}
+            </span>
+          </td>
+          <td>
+            <div class="td-actions">
+              <a href="/admin/products/{{ p.id }}/edit" class="btn-icon" title="সম্পাদনা">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </a>
+              <form method="post" action="/admin/products/{{ p.id }}/delete" class="delete-form" style="display:inline;">
+                <button type="submit" class="btn-icon danger" title="মুছুন">
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--admin-muted);">কোনো পণ্য নেই। <a href="/admin/products/new" style="color:var(--admin-accent);">নতুন পণ্য যোগ করুন।</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if pages > 1 %}
+<div class="pagination">
+  {% if page > 1 %}<a href="?q={{ q }}&cat={{ cat }}&page={{ page - 1 }}" class="page-link">‹</a>{% else %}<span class="page-link disabled">‹</span>{% endif %}
+  {% for p in range(1, pages + 1) %}
+  <a href="?q={{ q }}&cat={{ cat }}&page={{ p }}" class="page-link {% if p == page %}active{% endif %}">{{ p }}</a>
+  {% endfor %}
+  {% if page < pages %}<a href="?q={{ q }}&cat={{ cat }}&page={{ page + 1 }}" class="page-link">›</a>{% else %}<span class="page-link disabled">›</span>{% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

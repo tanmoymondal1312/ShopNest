@@ -1,0 +1,45 @@
+<div class="product-card">
+  <a href="/product/{{ product.slug }}">
+    <div class="product-card-img-wrap">
+      {% if product.image %}
+      <img src="/static/uploads/products/{{ product.image }}" alt="{{ product.name }}"
+           width="400" height="400" loading="lazy">
+      {% else %}
+      <div class="product-card-placeholder">📦</div>
+      {% endif %}
+
+      {% if product.old_price and product.old_price > product.price %}
+      <span class="badge-sale">সেল</span>
+      {% endif %}
+
+      {% if product.is_featured %}
+      <span class="badge-featured">★ বিশেষ</span>
+      {% endif %}
+
+      {% if product.stock == 0 %}
+      <div class="out-of-stock-overlay">স্টক নেই</div>
+      {% endif %}
+    </div>
+  </a>
+
+  <div class="product-card-body">
+    <a href="/product/{{ product.slug }}" class="product-card-name">{{ product.name }}</a>
+    <div class="product-card-price">
+      <span class="price-current">{{ settings.currency_symbol }}{{ "%.0f"|format(product.price) }}</span>
+      {% if product.old_price and product.old_price > product.price %}
+      <span class="price-old">{{ settings.currency_symbol }}{{ "%.0f"|format(product.old_price) }}</span>
+      {% endif %}
+    </div>
+    <button class="btn-add-cart"
+      {% if product.stock == 0 %}disabled{% endif %}
+      @click="$store.cart.addItem({
+        id: {{ product.id }},
+        slug: '{{ product.slug }}',
+        name: '{{ product.name | replace("'", "\\'") }}',
+        price: {{ product.price }},
+        image: '{{ product.image or "" }}'
+      })">
+      {% if product.stock == 0 %}স্টক নেই{% else %}কার্টে যোগ করুন{% endif %}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+{% block title %}অর্ডারসমূহ{% endblock %}
+{% block page_title %}অর্ডারসমূহ{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">অর্ডারসমূহ</div>
+    <div class="page-subtitle">{{ total }} টি অর্ডার</div>
+  </div>
+</div>
+
+<!-- Status tabs -->
+<div class="status-tabs">
+  {% for tab, label in [('all','সব'), ('pending','পেন্ডিং'), ('confirmed','নিশ্চিত'), ('delivered','ডেলিভারি'), ('cancelled','বাতিল')] %}
+  <a href="?status_filter={{ tab }}"
+     class="status-tab {% if status_filter == tab %}active{% endif %}">
+    {{ label }}
+  </a>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>অর্ডার ID</th>
+          <th>গ্রাহক</th>
+          <th>ফোন</th>
+          <th>আইটেম</th>
+          <th>মোট</th>
+          <th>তারিখ</th>
+          <th>স্ট্যাটাস</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td style="font-weight:700;">#{{ order.id }}</td>
+          <td>{{ order.customer_name }}</td>
+          <td>{{ order.customer_phone }}</td>
+          <td style="color:var(--admin-muted);">—</td>
+          <td>{{ settings.currency_symbol }}{{ "%.2f"|format(order.total) }}</td>
+          <td style="font-size:.8rem;color:var(--admin-muted);">{{ order.created_at[:16] }}</td>
+          <td><span class="status-badge status-{{ order.status }}">{{ order.status }}</span></td>
+          <td><a href="/admin/orders/{{ order.id }}" class="btn btn-secondary btn-sm">দেখুন</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--admin-muted);">কোনো অর্ডার নেই।</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if pages > 1 %}
+<div class="pagination">
+  {% if page > 1 %}<a href="?status_filter={{ status_filter }}&page={{ page - 1 }}" class="page-link">‹</a>{% else %}<span class="page-link disabled">‹</span>{% endif %}
+  {% for p in range(1, pages + 1) %}
+  <a href="?status_filter={{ status_filter }}&page={{ p }}" class="page-link {% if p == page %}active{% endif %}">{{ p }}</a>
+  {% endfor %}
+  {% if page < pages %}<a href="?status_filter={{ status_filter }}&page={{ page + 1 }}" class="page-link">›</a>{% else %}<span class="page-link disabled">›</span>{% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

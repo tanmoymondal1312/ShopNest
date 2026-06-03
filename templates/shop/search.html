@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}"{{ q }}" — খুঁজুন — {{ settings.store_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <section class="section">
+    <h1 class="section-title">পণ্য খুঁজুন</h1>
+
+    <!-- Big search bar -->
+    <form class="search-bar-lg" action="/search" method="get">
+      <input type="search" name="q" value="{{ q }}" placeholder="পণ্যের নাম লিখুন…" autofocus>
+      <button type="submit">খুঁজুন</button>
+    </form>
+
+    {% if q %}
+    <p style="color:var(--text-muted);margin-bottom:24px;font-size:.9rem;">
+      "{{ q }}" — {{ products|length }} টি ফলাফল পাওয়া গেছে
+    </p>
+    {% endif %}
+
+    {% if products %}
+    <div class="product-grid">
+      {% for product in products %}
+      {% include "includes/product_card.html" %}
+      {% endfor %}
+    </div>
+    {% elif q %}
+    <div class="empty-state">
+      <svg width="80" height="80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <circle cx="11" cy="11" r="8" stroke-width="1.5"/>
+        <path d="m21 21-4.35-4.35" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M8 11h6M11 8v6" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <h2>কোনো পণ্য পাওয়া যায়নি</h2>
+      <p>"{{ q }}" নামে কোনো পণ্য নেই। অন্য কিওয়ার্ড চেষ্টা করুন।</p>
+      <br>
+      <a href="/" style="color:var(--accent);font-weight:600;">সব পণ্য দেখুন →</a>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <svg width="80" height="80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <circle cx="11" cy="11" r="8" stroke-width="1.5"/>
+        <path d="m21 21-4.35-4.35" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <h2>কী খুঁজছেন?</h2>
+      <p>উপরে পণ্যের নাম লিখুন এবং খুঁজুন।</p>
+    </div>
+    {% endif %}
+
+  </section>
+</div>
+{% endblock %}

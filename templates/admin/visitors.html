@@ -1,0 +1,104 @@
+{% extends "admin/base.html" %}
+{% block title %}ভিজিটর অ্যানালিটিক্স{% endblock %}
+{% block page_title %}ভিজিটর অ্যানালিটিক্স{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">ভিজিটর অ্যানালিটিক্স</div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    {% for p, label in [('today','আজ'), ('week','এই সপ্তাহ'), ('month','এই মাস')] %}
+    <a href="?period={{ p }}" class="btn {% if period == p %}btn-primary{% else %}btn-secondary{% endif %}">{{ label }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Stat cards -->
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px;">
+  <div class="stat-card">
+    <div>
+      <div class="stat-card-label">মোট পেজ ভিউ</div>
+      <div class="stat-card-value">{{ total_views }}</div>
+    </div>
+    <div class="stat-card-icon" style="background:#dbeafe;color:#2563eb;">👁</div>
+  </div>
+  <div class="stat-card">
+    <div>
+      <div class="stat-card-label">ইউনিক ভিজিটর</div>
+      <div class="stat-card-value">{{ unique_visitors }}</div>
+    </div>
+    <div class="stat-card-icon" style="background:#dcfce7;color:#16a34a;">👤</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+  <!-- Page views chart -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">পেজ ভিউ চার্ট</span></div>
+    <div class="card-body">
+      {% if chart %}
+      <div id="visitors-chart-container" class="bar-chart" style="height:120px;"></div>
+      <div id="visitors-chart" style="display:none;"
+           data-values="{{ chart|map(attribute='cnt')|list|tojson }}"
+           data-labels="{{ chart|map(attribute='day')|list|tojson }}"></div>
+      {% else %}
+      <p style="color:var(--admin-muted);font-size:.85rem;">এই সময়ে কোনো ভিজিটর নেই।</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Top pages -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">সর্বোচ্চ ভিজিটেড পেজ</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>পেজ</th><th>ভিউ</th></tr></thead>
+        <tbody>
+          {% for row in top_pages %}
+          <tr>
+            <td style="font-size:.85rem;font-family:monospace;">{{ row.path }}</td>
+            <td><span class="status-badge status-confirmed">{{ row.views }}</span></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="2" style="text-align:center;padding:24px;color:var(--admin-muted);">কোনো ডেটা নেই।</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Recent visitors log -->
+<div class="card" style="margin-top:20px;">
+  <div class="card-header"><span class="card-title">সাম্প্রতিক ভিজিটর</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>সময়</th>
+          <th>পেজ</th>
+          <th>রেফারার</th>
+          <th>ব্রাউজার</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in recent %}
+        <tr>
+          <td style="font-size:.78rem;color:var(--admin-muted);white-space:nowrap;">{{ v.ts }}</td>
+          <td style="font-size:.82rem;font-family:monospace;">{{ v.path }}</td>
+          <td style="font-size:.78rem;color:var(--admin-muted);">{{ v.referrer[:40] if v.referrer else '—' }}</td>
+          <td style="font-size:.78rem;color:var(--admin-muted);">{{ v.user_agent[:50] if v.user_agent else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" style="text-align:center;padding:32px;color:var(--admin-muted);">কোনো ভিজিটর লগ নেই।</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

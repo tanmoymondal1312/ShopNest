@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>লগইন — {{ settings.store_name }}</title>
+  <link rel="icon" href="/static/favicon/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="brand-dot">S</div>
+      {{ settings.store_name }}
+    </div>
+
+    <h1 class="login-title">অ্যাডমিন প্যানেল</h1>
+    <p class="login-sub">আপনার অ্যাকাউন্টে লগইন করুন</p>
+
+    {% if error %}
+    <div class="error-msg">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="/admin/login">
+      <div class="form-group">
+        <label>ইউজারনেম</label>
+        <input class="form-control" type="text" name="username" placeholder="admin" autocomplete="username" required autofocus>
+      </div>
+      <div class="form-group">
+        <label>পাসওয়ার্ড</label>
+        <input class="form-control" type="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn-login">লগইন করুন</button>
+    </form>
+
+    <p style="margin-top:20px;text-align:center;font-size:.8rem;color:var(--admin-muted);">
+      <a href="/" style="color:var(--admin-accent);">← দোকানে ফিরে যান</a>
+    </p>
+  </div>
+</div>
+</body>
+</html>

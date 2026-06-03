@@ -1,0 +1,521 @@
+================================================================================
+  SHOPNEST — SINGLE VENDOR E-COMMERCE TEMPLATE  (by Mediaghor)
+  Full Build Plan
+  Stack: FastAPI + Jinja2 + SQLite + Alpine.js
+================================================================================
+
+--------------------------------------------------------------------------------
+OVERVIEW
+--------------------------------------------------------------------------------
+
+Product name: ShopNest
+Goal        : A beautiful, blazing-fast single-vendor e-commerce template
+              with a full admin panel — deployable as a product Mediaghor sells
+              to Bangladeshi businesses.
+
+Target user : Small shop owners (clothing, grocery, bakery, electronics, etc.)
+              who need an online store with zero technical knowledge.
+
+Checkout    : WhatsApp-first (no payment gateway complexity). Customer fills
+              order → WhatsApp message opens pre-filled with cart details.
+
+Performance : Target < 1 second load on 4G mobile in Bangladesh.
+
+--------------------------------------------------------------------------------
+TECH STACK
+--------------------------------------------------------------------------------
+
+Layer           | Technology            | Why
+----------------|----------------------|------------------------------------------
+Backend         | FastAPI               | Already in use, async, ultra-fast
+Templating      | Jinja2                | SSR = instant first paint, no JS parsing
+Database        | SQLite + aiosqlite    | Zero config, single file, microsecond reads
+Interactivity   | Alpine.js             | Already loaded, handles cart/UI with 44KB
+Styling         | Vanilla CSS           | No framework overhead, full design control
+Image handling  | Pillow                | Compress & resize uploads on the server
+Auth (admin)    | itsdangerous          | Signed session cookies, no JWT complexity
+File uploads    | python-multipart      | Already in requirements.txt
+
+New dependencies to add:
+  aiosqlite
+  itsdangerous
+  Pillow
+
+--------------------------------------------------------------------------------
+PROJECT FILE STRUCTURE
+--------------------------------------------------------------------------------
+
+shopnest/
+│
+├── main.py                        # App entry, all route registrations
+├── database.py                    # DB init, table creation, queries
+├── auth.py                        # Admin session sign/verify logic
+├── requirements.txt
+├── .env                           # ADMIN_USER, ADMIN_PASS, SECRET_KEY
+├── shop.db                        # SQLite database (auto-created)
+│
+├── static/
+│   ├── css/
+│   │   ├── shop.css               # Customer-facing styles
+│   │   └── admin.css              # Admin panel styles
+│   ├── js/
+│   │   ├── shop.js                # Cart logic, search, quantity update
+│   │   └── admin.js               # Dashboard charts, image preview
+│   └── uploads/
+│       └── products/              # Uploaded product images (WebP converted)
+│
+└── templates/
+    ├── base.html                  # HTML skeleton, shared CSS/JS links
+    │
+    ├── includes/
+    │   ├── navbar.html            # Shop header + cart icon badge
+    │   └── footer.html            # Shop footer
+    │
+    ├── shop/
+    │   ├── index.html             # Homepage: hero + categories + product grid
+    │   ├── product.html           # Product detail: images, desc, add-to-cart
+    │   ├── search.html            # Search results page
+    │   └── order-confirm.html     # Thank you page after WhatsApp checkout
+    │
+    └── admin/
+        ├── base.html              # Admin layout: sidebar + topbar
+        ├── login.html             # Admin login form
+        ├── dashboard.html         # Stats, recent orders, low stock
+        ├── products/
+        │   ├── list.html          # Product table with search + filter
+        │   └── form.html          # Add / Edit product form
+        ├── orders/
+        │   ├── list.html          # All orders table with status filter
+        │   └── detail.html        # Single order detail
+        ├── categories.html        # Manage product categories
+        ├── visitors.html          # Visitor log & basic analytics
+        └── settings.html         # Store config: name, logo, WhatsApp, currency
+
+--------------------------------------------------------------------------------
+DATABASE SCHEMA  (SQLite)
+--------------------------------------------------------------------------------
+
+TABLE: categories
+  id          INTEGER PRIMARY KEY AUTOINCREMENT
+  name        TEXT NOT NULL
+  slug        TEXT UNIQUE NOT NULL
+  sort_order  INTEGER DEFAULT 0
+
+TABLE: products
+  id           INTEGER PRIMARY KEY AUTOINCREMENT
+  name         TEXT NOT NULL
+  slug         TEXT UNIQUE NOT NULL
+  description  TEXT
+  price        REAL NOT NULL
+  old_price    REAL                          -- for showing "was ৳X" strike-through
+  stock        INTEGER DEFAULT 0
+  category_id  INTEGER REFERENCES categories(id)
+  image        TEXT                          -- filename in /static/uploads/products/
+  is_active    INTEGER DEFAULT 1            -- 0 = hidden from shop
+  is_featured  INTEGER DEFAULT 0            -- shown in hero/featured row
+  created_at   TEXT DEFAULT (datetime('now'))
+
+TABLE: orders
+  id           TEXT PRIMARY KEY              -- UUID
+  customer_name TEXT NOT NULL
+  customer_phone TEXT NOT NULL
+  address      TEXT
+  total        REAL NOT NULL
+  status       TEXT DEFAULT 'pending'        -- pending / confirmed / delivered / cancelled
+  note         TEXT
+  created_at   TEXT DEFAULT (datetime('now'))
+
+TABLE: order_items
+  id           INTEGER PRIMARY KEY AUTOINCREMENT
+  order_id     TEXT REFERENCES orders(id)
+  product_id   INTEGER REFERENCES products(id)
+  product_name TEXT NOT NULL                -- snapshot at time of order
+  price        REAL NOT NULL               -- snapshot
+  quantity     INTEGER NOT NULL
+
+TABLE: visitors
+  id           INTEGER PRIMARY KEY AUTOINCREMENT
+  path         TEXT NOT NULL
+  referrer     TEXT
+  user_agent   TEXT
+  ip_hash      TEXT                         -- hashed for privacy
+  visited_at   TEXT DEFAULT (datetime('now'))
+
+TABLE: settings
+  key          TEXT PRIMARY KEY
+  value        TEXT
+
+  Default rows:
+    store_name      | "ShopNest"
+    tagline         | "Fresh products, fast delivery"
+    whatsapp        | ""
+    currency_symbol | "৳"
+    logo            | ""
+    accent_color    | "#6c63ff"
+    footer_text     | ""
+
+--------------------------------------------------------------------------------
+ALL ROUTES
+--------------------------------------------------------------------------------
+
+  SHOP (Customer-facing)
+  ─────────────────────
+  GET  /                          Shop homepage
+  GET  /category/{slug}           Products filtered by category
+  GET  /product/{slug}            Product detail page
+  GET  /search?q=                 Search results
+  POST /order                     Submit order → returns UUID, redirect to confirm
+  GET  /order/{id}/confirm        Order confirmation + WhatsApp deep-link
+
+  ADMIN PANEL
+  ───────────
+  GET  /admin/login               Login form
+  POST /admin/login               Authenticate, set session cookie
+  GET  /admin/logout              Clear session, redirect to login
+  GET  /admin                     Dashboard (redirect if not authed)
+  GET  /admin/products            Product list
+  GET  /admin/products/new        New product form
+  POST /admin/products/new        Save new product
+  GET  /admin/products/{id}/edit  Edit form pre-filled
+  POST /admin/products/{id}/edit  Save changes
+  POST /admin/products/{id}/delete Delete product
+  GET  /admin/orders              Orders list (filter by status)
+  GET  /admin/orders/{id}         Order detail
+  POST /admin/orders/{id}/status  Update order status
+  GET  /admin/categories          Categories list + add/delete
+  POST /admin/categories          Add category
+  POST /admin/categories/{id}/delete
+  GET  /admin/visitors            Visitor log + basic chart
+  GET  /admin/settings            Settings form
+  POST /admin/settings            Save settings
+
+--------------------------------------------------------------------------------
+SHOP FRONTEND — PAGE DESIGNS
+--------------------------------------------------------------------------------
+
+1. HOMEPAGE  (/)
+   ─────────────
+   • Sticky navbar: logo | search bar | cart icon with item count badge
+   • Hero banner: full-width gradient, store name + tagline, CTA button
+   • Featured products row: horizontal scroll on mobile, grid on desktop
+   • Category pills: icon + label, horizontal scroll on mobile
+   • Product grid: 3 cols desktop / 2 cols tablet / 1 col mobile
+     Each card: product image | name | price (old price strike-through) | Add to Cart
+   • Footer: store info, links, WhatsApp CTA
+
+2. PRODUCT DETAIL  (/product/{slug})
+   ───────────────────────────────────
+   • Breadcrumb: Home > Category > Product name
+   • 2-column layout on desktop: image left, info right
+   • Image: single large image (more images phase 2)
+   • Info: name, price, stock status badge, description
+   • Quantity selector + "Add to Cart" button
+   • Related products row (same category, 4 cards)
+
+3. SEARCH RESULTS  (/search?q=)
+   ──────────────────────────────
+   • Search bar pre-filled
+   • Results count text
+   • Same product grid as homepage
+   • Empty state illustration if no results
+
+4. ORDER CONFIRMATION  (/order/{id}/confirm)
+   ────────────────────────────────────────────
+   • Checkmark animation
+   • Order summary (items, total)
+   • Big WhatsApp button: "Confirm via WhatsApp"
+     Pre-fills message: order ID, items, total, customer details
+   • "Continue Shopping" link
+
+5. CART  (Alpine.js, localStorage, no separate page)
+   ───────────────────────────────────────────────────
+   • Slide-in drawer from right (on all pages)
+   • Item rows: image + name + qty stepper + price + remove
+   • Subtotal
+   • "Checkout" button → opens a mini form overlay (name, phone, address)
+     → POST /order → redirect to confirmation page
+
+--------------------------------------------------------------------------------
+ADMIN PANEL — PAGE DESIGNS
+--------------------------------------------------------------------------------
+
+1. LOGIN
+   • Centered card, logo, username + password, submit
+   • Error message on wrong credentials
+
+2. DASHBOARD
+   • Top row: 4 stat cards
+     — Total orders today | Revenue today | Total products | Visitors today
+   • Middle: Last 7 days orders bar chart (pure CSS or Chart.js)
+   • Bottom left: Recent orders table (last 10, with status badge)
+   • Bottom right: Low stock alert (products with stock < 5)
+
+3. PRODUCTS LIST
+   • Search input + category filter dropdown
+   • Table: thumbnail | name | category | price | stock | status toggle | actions
+   • "Add Product" button top right
+   • Pagination (20 per page)
+
+4. ADD / EDIT PRODUCT FORM
+   • Fields: Name, Slug (auto-generated), Category, Price, Old Price,
+             Stock, Description (textarea), Image upload, Active toggle,
+             Featured toggle
+   • Image upload: drag-drop zone, preview before save
+   • Server converts to WebP, resizes to 800×800 max
+
+5. ORDERS LIST
+   • Status filter tabs: All | Pending | Confirmed | Delivered | Cancelled
+   • Table: order ID | customer name | phone | items count | total | date | status | view
+   • Color-coded status badges
+
+6. ORDER DETAIL
+   • Customer info card
+   • Items table with images
+   • Order total
+   • Status dropdown to update
+   • WhatsApp button to message customer
+
+7. VISITORS
+   • Today / This week / This month toggle
+   • Page views bar chart
+   • Top pages table
+   • Recent visitors log (path, time, referrer)
+
+8. SETTINGS
+   • Store name, tagline
+   • WhatsApp number (used for checkout)
+   • Logo upload
+   • Accent color picker
+   • Currency symbol
+   • Footer text
+
+--------------------------------------------------------------------------------
+CART LOGIC  (Alpine.js + localStorage)
+--------------------------------------------------------------------------------
+
+  Cart state stored in localStorage as JSON:
+  {
+    items: [
+      { id, slug, name, price, image, qty }
+    ]
+  }
+
+  Alpine.js global store ($store.cart):
+    - addItem(product)
+    - removeItem(id)
+    - updateQty(id, qty)
+    - clearCart()
+    - total (computed)
+    - count (computed)
+
+  Cart drawer opens on cart icon click (x-show with transition)
+  Badge on navbar icon shows item count (x-text="$store.cart.count")
+  Persists across page navigations via localStorage
+
+--------------------------------------------------------------------------------
+CHECKOUT FLOW  (WhatsApp-first, no payment gateway)
+--------------------------------------------------------------------------------
+
+  Step 1 → Customer fills mini checkout form:
+           Name, Phone, Delivery Address, Note (optional)
+
+  Step 2 → POST /order
+           Server saves order to DB (status: "pending")
+           Returns order UUID
+
+  Step 3 → Redirect to /order/{uuid}/confirm
+           Page shows order summary + big WhatsApp button
+
+  Step 4 → WhatsApp button opens:
+           wa.me/{store_whatsapp}?text={pre-filled message}
+
+           Message format:
+           ─────────────────────────────
+           নতুন অর্ডার! 🛒
+           অর্ডার ID: #ABC12345
+           নাম: রহিম উদ্দিন
+           ফোন: 01711-000000
+           ঠিকানা: ঢাকা, বাংলাদেশ
+
+           পণ্য:
+           • পণ্যের নাম x 2 — ৳400
+           • আরেকটি পণ্য x 1 — ৳200
+
+           মোট: ৳600
+           ─────────────────────────────
+
+  Step 5 → Admin receives WhatsApp message, confirms manually,
+           updates order status in admin panel.
+
+  Alpine.js clears cart after successful order submission.
+
+--------------------------------------------------------------------------------
+VISITOR TRACKING  (Privacy-safe, no cookies)
+--------------------------------------------------------------------------------
+
+  FastAPI middleware logs every request:
+  - Path (URL)
+  - Referrer header
+  - User-Agent (browser/device info)
+  - IP hash (SHA256 of IP, not stored raw — privacy-safe)
+  - Timestamp
+
+  Excludes: /static/*, /admin/*, /robots.txt, /sitemap.xml
+
+  Admin dashboard shows:
+  - Unique visitors (by IP hash + day)
+  - Page views
+  - Top pages
+  - Device type breakdown (parsed from User-Agent)
+
+--------------------------------------------------------------------------------
+PERFORMANCE STRATEGY
+--------------------------------------------------------------------------------
+
+  Image pipeline:
+    • On upload → Pillow converts to WebP, resizes to max 800×800
+    • Thumbnail variant: 400×400 for product cards
+    • Add width/height attributes to all <img> tags (prevents layout shift)
+    • loading="lazy" on all below-fold images
+
+  CSS:
+    • Single CSS file, no framework
+    • CSS custom properties for theming (accent color from settings)
+    • Critical CSS inlined in <head> (only navbar + hero)
+    • No render-blocking resources
+
+  JS:
+    • Alpine.js defer loaded (already done)
+    • Cart state from localStorage (no API call on load)
+    • No jQuery, no React, no build step
+
+  Server:
+    • SQLite with proper indexes on slug, category_id, status, created_at
+    • FastAPI response caching for static product pages (60s)
+    • GZip middleware on FastAPI
+    • Proper HTTP cache headers for /static/*
+
+  Target metrics:
+    • Homepage: < 100KB HTML+CSS+JS (excl. images)
+    • First Contentful Paint: < 1.2s on 4G
+    • Product page: < 150ms server response
+
+--------------------------------------------------------------------------------
+ADMIN SECURITY
+--------------------------------------------------------------------------------
+
+  • Session cookie signed with itsdangerous (SECRET_KEY from .env)
+  • Cookie: HttpOnly, SameSite=Lax, Secure (in prod)
+  • Session expires after 8 hours of inactivity
+  • All /admin/* routes protected by a dependency (FastAPI Depends)
+  • Rate limit login: 5 attempts per minute per IP
+  • Credentials stored in .env (not in DB)
+  • File upload validation: only jpg/png/webp, max 5MB
+  • Pillow re-encodes uploads (strips metadata, prevents image exploits)
+  • SQL via parameterized queries only (no string formatting)
+
+--------------------------------------------------------------------------------
+BUILD PHASES
+--------------------------------------------------------------------------------
+
+  PHASE 1 — Core Shop  (Week 1)
+  ─────────────────────────────
+  □ Database setup (schema, init script)
+  □ Product model + CRUD queries
+  □ Shop homepage with product grid
+  □ Product detail page
+  □ Cart (Alpine.js + localStorage)
+  □ Checkout flow + WhatsApp redirect
+  □ Order confirmation page
+  □ Basic navbar + footer
+  □ Mobile responsive CSS
+  □ Seed script with sample products
+
+  PHASE 2 — Admin Panel  (Week 2)
+  ────────────────────────────────
+  □ Admin login / session auth
+  □ Admin layout (sidebar, topbar)
+  □ Dashboard with stats
+  □ Product list + add/edit/delete
+  □ Image upload with WebP conversion
+  □ Order list + status update
+  □ Category management
+
+  PHASE 3 — Polish & Analytics  (Week 3)
+  ───────────────────────────────────────
+  □ Visitor tracking middleware
+  □ Visitors analytics page
+  □ Settings page (logo, colors, WhatsApp)
+  □ Search page
+  □ Dynamic accent color from settings
+  □ Low stock alerts on dashboard
+  □ Performance optimizations (caching, gzip)
+  □ Final design polish (animations, empty states)
+  □ SEO (meta tags, sitemap, structured data per product)
+
+--------------------------------------------------------------------------------
+DESIGN PRINCIPLES
+--------------------------------------------------------------------------------
+
+  Color system:
+    --accent      : Customizable via settings (default: purple #6c63ff)
+    --bg          : #ffffff
+    --bg-soft     : #f8fafc
+    --text        : #0d1117
+    --text-muted  : #6b7280
+    --border      : #e8ecf0
+    Accent color loaded dynamically from DB settings into CSS :root
+
+  Typography:
+    • Hind Siliguri (Bengali + Latin, already loaded)
+    • Scale: 0.78rem → 0.875rem → 1rem → 1.1rem → 1.55rem → 2.2rem → 3rem+
+
+  Product card design:
+    • Rounded corners (16px)
+    • Subtle shadow, stronger on hover
+    • Image aspect ratio: 1:1 (square), object-fit: cover
+    • "Out of stock" overlay when stock = 0
+    • "Sale" badge when old_price > price
+    • "Featured" ribbon option
+
+  Spacing system: 4 / 8 / 12 / 16 / 20 / 24 / 32 / 40 / 48 / 64 / 80px
+
+  Responsive breakpoints:
+    • Mobile  : < 480px  (1 column product grid)
+    • Tablet  : 481–768px (2 column grid)
+    • Desktop : 769–1024px (3 column grid)
+    • Wide    : > 1024px  (4 column grid option)
+
+  Animations:
+    • Cart drawer: slide-in from right (CSS transform + transition)
+    • Add to cart: button pulse + badge count bounce
+    • Page transitions: none (SSR pages, instant)
+    • Hover on cards: translateY(-4px) + shadow
+    • Skeleton loading on search (CSS animation)
+
+  Admin panel:
+    • Left sidebar (240px) + main content area
+    • Sidebar collapses to icons on tablet
+    • Full mobile: sidebar becomes slide-out overlay
+    • Dark sidebar (#1e293b) + white content area
+    • Status badges: color-coded (yellow pending, green delivered, red cancelled)
+
+--------------------------------------------------------------------------------
+WHAT MAKES THIS TEMPLATE SPECIAL  (Selling point for Mediaghor)
+--------------------------------------------------------------------------------
+
+  ✓ Works offline-first: cart persists in localStorage
+  ✓ No payment gateway needed: WhatsApp-first checkout
+  ✓ Bengali language throughout (customer + admin)
+  ✓ Admin panel included (no separate software needed)
+  ✓ One .env file to configure entire store
+  ✓ Image auto-optimization (no manual WebP conversion)
+  ✓ Privacy-safe analytics (no Google Analytics, no cookies)
+  ✓ Sub-1-second loads on Bangladesh 4G
+  ✓ Single SQLite file = easy backup (just copy shop.db)
+  ✓ Zero monthly infra cost (runs on cheapest VPS)
+
+--------------------------------------------------------------------------------
+ESTIMATED TIMELINE: 3 weeks (solo developer)
+ESTIMATED LINES OF CODE: ~2,500 Python + ~3,000 HTML/CSS/JS
+================================================================================

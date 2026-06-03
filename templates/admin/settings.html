@@ -1,0 +1,199 @@
+{% extends "admin/base.html" %}
+{% block title %}সেটিংস{% endblock %}
+{% block page_title %}স্টোর সেটিংস{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">স্টোর সেটিংস</div>
+    <div class="page-subtitle">আপনার দোকানের তথ্য ও কাস্টমাইজেশন</div>
+  </div>
+</div>
+
+<form method="post" action="/admin/settings" enctype="multipart/form-data">
+  <div style="display:grid;grid-template-columns:3fr 2fr;gap:20px;align-items:start;">
+
+    <!-- Left -->
+    <div>
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header"><span class="card-title">দোকানের তথ্য</span></div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>দোকানের নাম <span class="req">*</span></label>
+            <input class="form-control" type="text" name="store_name"
+                   value="{{ s.store_name }}" required>
+          </div>
+          <div class="form-group">
+            <label>ট্যাগলাইন <small style="font-weight:400;color:var(--admin-muted)">(নেভবার লোগোর নিচে)</small></label>
+            <input class="form-control" type="text" name="tagline"
+                   value="{{ s.tagline }}" placeholder="Fresh products, fast delivery">
+          </div>
+          <div class="form-group">
+            <label>হিরো ট্যাগলাইন <small style="font-weight:400;color:var(--admin-muted)">(হোমপেজ স্লাইডারের উপরে)</small></label>
+            <input class="form-control" type="text" name="hero_tagline"
+                   value="{{ s.hero_tagline or '' }}"
+                   placeholder="আপনার পছন্দের পণ্য, সেরা দামে — সারাদেশে দ্রুত ডেলিভারি">
+            <div class="form-hint">খালি রাখলে হিরোতে কোনো ট্যাগলাইন দেখাবে না।</div>
+          </div>
+          <div class="form-group">
+            <label>ফুটার টেক্সট</label>
+            <input class="form-control" type="text" name="footer_text"
+                   value="{{ s.footer_text }}" placeholder="কপিরাইট বার্তা ইত্যাদি">
+          </div>
+        </div>
+      </div>
+
+      <!-- Social Media -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">সোশ্যাল মিডিয়া লিংক</span></div>
+        <div class="card-body">
+          <div class="form-hint" style="margin-bottom:16px;">ফুটারে আইকন হিসেবে প্রদর্শিত হবে। খালি রাখলে লুকানো থাকবে।</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#1877f2" style="vertical-align:middle;margin-right:4px;">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+                Facebook
+              </label>
+              <input class="form-control" type="url" name="social_facebook"
+                     value="{{ s.social_facebook or '' }}" placeholder="https://facebook.com/yourpage">
+            </div>
+            <div class="form-group">
+              <label>
+                <svg width="14" height="14" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:4px;">
+                  <defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fd5949"/><stop offset="50%" stop-color="#d6249f"/><stop offset="100%" stop-color="#285aeb"/></linearGradient></defs>
+                  <path fill="url(#ig)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                </svg>
+                Instagram
+              </label>
+              <input class="form-control" type="url" name="social_instagram"
+                     value="{{ s.social_instagram or '' }}" placeholder="https://instagram.com/yourhandle">
+            </div>
+            <div class="form-group">
+              <label>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff0000" style="vertical-align:middle;margin-right:4px;">
+                  <path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/>
+                </svg>
+                YouTube
+              </label>
+              <input class="form-control" type="url" name="social_youtube"
+                     value="{{ s.social_youtube or '' }}" placeholder="https://youtube.com/@yourchannel">
+            </div>
+            <div class="form-group">
+              <label>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#000" style="vertical-align:middle;margin-right:4px;">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                X (Twitter)
+              </label>
+              <input class="form-control" type="url" name="social_twitter"
+                     value="{{ s.social_twitter or '' }}" placeholder="https://x.com/yourhandle">
+            </div>
+            <div class="form-group">
+              <label>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#000" style="vertical-align:middle;margin-right:4px;">
+                  <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.77 1.52V6.75a4.85 4.85 0 01-1-.06z"/>
+                </svg>
+                TikTok
+              </label>
+              <input class="form-control" type="url" name="social_tiktok"
+                     value="{{ s.social_tiktok or '' }}" placeholder="https://tiktok.com/@yourhandle">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">যোগাযোগ ও পেমেন্ট</span></div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>WhatsApp নম্বর</label>
+            <input class="form-control" type="text" name="whatsapp"
+                   value="{{ s.whatsapp }}" placeholder="8801XXXXXXXXX (দেশ কোড সহ)">
+            <div class="form-hint">অর্ডার নিশ্চিতকরণে ব্যবহৃত হবে। আন্তর্জাতিক ফরম্যাটে দিন।</div>
+          </div>
+          <div class="form-group">
+            <label>মুদ্রার চিহ্ন</label>
+            <input class="form-control" type="text" name="currency_symbol"
+                   value="{{ s.currency_symbol }}" style="max-width:120px;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div>
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header"><span class="card-title">লোগো</span></div>
+        <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+          <!-- Logo upload -->
+          <div>
+            <div class="form-group" style="margin-bottom:10px;">
+              <label>লোগো <small style="font-weight:400;color:var(--admin-muted)">(নেভবার)</small></label>
+            </div>
+            <div class="upload-zone" style="padding:16px;">
+              <input type="file" name="logo" accept="image/jpeg,image/png,image/webp">
+              <div class="upload-zone-icon" style="font-size:1.3rem;">🏪</div>
+              <p style="font-size:.75rem;">লোগো (200×100 px)</p>
+              <!-- Instant preview (hidden until file chosen) -->
+              <div class="uz-preview" style="display:{% if s.logo %}block{% else %}none{% endif %};">
+                <img class="uz-preview-img uz-preview-logo"
+                     src="{% if s.logo %}/static/{{ s.logo }}{% endif %}"
+                     alt="লোগো প্রিভিউ">
+              </div>
+            </div>
+          </div>
+
+          <!-- Social image upload -->
+          <div>
+            <div class="form-group" style="margin-bottom:10px;">
+              <label>সোশ্যাল ইমেজ <small style="font-weight:400;color:var(--admin-muted)">(ফুটারে দেখাবে)</small></label>
+            </div>
+            <div class="upload-zone" style="padding:16px;">
+              <input type="file" name="social_image" accept="image/jpeg,image/png,image/webp">
+              <div class="upload-zone-icon" style="font-size:1.3rem;">🖼️</div>
+              <p style="font-size:.75rem;">ব্যানার ছবি (800×600 px)</p>
+              <!-- Instant preview -->
+              <div class="uz-preview" style="display:{% if s.social_image %}block{% else %}none{% endif %};">
+                <img class="uz-preview-img uz-preview-banner"
+                     src="{% if s.social_image %}/static/{{ s.social_image }}{% endif %}"
+                     alt="সোশ্যাল ইমেজ প্রিভিউ">
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">রঙ কাস্টমাইজেশন</span></div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>একসেন্ট রঙ</label>
+            <div class="color-field">
+              <input type="color" id="color-picker" value="{{ s.accent_color }}">
+              <input type="text" id="color-text" name="accent_color" value="{{ s.accent_color }}" maxlength="7">
+            </div>
+            <div class="form-hint">দোকানের মূল রঙ। পরিবর্তন করলে পুরো সাইটের রঙ বদলে যাবে।</div>
+          </div>
+
+          <div style="margin-top:16px;padding:16px;border-radius:var(--radius-sm);background:{{ s.accent_color }};color:#fff;font-size:.85rem;font-weight:600;text-align:center;">
+            পূর্বরূপ — {{ s.store_name }}
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;">
+          সেটিংস সংরক্ষণ করুন
+        </button>
+      </div>
+    </div>
+
+  </div>
+</form>
+
+{% endblock %}

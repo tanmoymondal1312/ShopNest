@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}{% if category %}{{ category.name }} — {% endif %}{{ settings.store_name }}{% endblock %}
+
+{% block content %}
+{% if not category %}
+<!-- ══════════════════════════════════════════════════════════
+     PREMIUM HERO
+══════════════════════════════════════════════════════════ -->
+<section class="hp"
+  x-data="{
+    active: 0,
+    n: {{ slider|length if slider else 0 }},
+    paused: false,
+    go(i)   { this.active = ((i % this.n) + this.n) % this.n },
+    next()  { if(this.n) this.active = (this.active + 1) % this.n },
+    prev()  { if(this.n) this.active = (this.active - 1 + this.n) % this.n },
+    offset(i) {
+      if(!this.n) return 99;
+      let d = ((i - this.active) % this.n + this.n) % this.n;
+      if(d > this.n/2) d -= this.n;
+      return d;
+    },
+    cls(i) {
+      const o = this.offset(i);
+      if(o===0)  return 'hti-c';
+      if(o===1)  return 'hti-r1';
+      if(o===-1) return 'hti-l1';
+      if(o===2)  return 'hti-r2';
+      if(o===-2) return 'hti-l2';
+      if(o===3)  return 'hti-r3';
+      if(o===-3) return 'hti-l3';
+      return 'hti-hide';
+    }
+  }"
+  x-init="setInterval(() => { if(!paused) next() }, 2000)"
+  @mouseenter="paused=true" @mouseleave="paused=false">
+
+  <!-- ── Store title ─────────────────────────────────────────────── -->
+  <div class="hp-title">
+    <h1 class="hp-title-name">{{ settings.store_name }}</h1>
+    {% if settings.hero_tagline %}
+    <p class="hp-title-tag">{{ settings.hero_tagline }}</p>
+    {% endif %}
+  </div>
+
+  <!-- ── Full-width slider ─────────────────────────────────────────── -->
+  {% if slider %}
+  <div class="hp-track-wrap">
+    <div class="hp-glow-spot" aria-hidden="true"></div>
+
+    <div class="hp-track">
+      {% for product in slider %}
+      <div class="hp-slide" :class="cls({{ loop.index0 }})">
+        <a href="/product/{{ product.slug }}" class="hp-card">
+
+          <div class="hp-card-img">
+            {% if product.image %}
+            <img src="/static/uploads/products/{{ product.image }}"
+                 alt="{{ product.name }}" loading="lazy">
+            {% else %}
+            <div class="hp-card-no-img">
+              <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
+              </svg>
+            </div>
+            {% endif %}
+            {% if product.old_price and product.old_price > product.price %}
+            <span class="hp-card-disc">{{ ((1 - product.price/product.old_price)*100)|int }}% ছাড়</span>
+            {% endif %}
+          </div>
+
+          <div class="hp-card-info">
+            <p class="hp-card-name">{{ product.name }}</p>
+            <div class="hp-card-price-row">
+              <span class="hp-card-price">{{ settings.currency_symbol }}{{ "%.0f"|format(product.price) }}</span>
+              {% if product.old_price and product.old_price > product.price %}
+              <span class="hp-card-was">{{ settings.currency_symbol }}{{ "%.0f"|format(product.old_price) }}</span>
+              {% endif %}
+            </div>
+          </div>
+
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <button class="hp-nav hp-nav-l" @click="prev()" aria-label="আগে">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <button class="hp-nav hp-nav-r" @click="next()" aria-label="পরে">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+
+  {% if slider|length > 1 %}
+  <div class="hp-dots">
+    {% for product in slider %}
+    <button class="hp-dot" @click="go({{ loop.index0 }})"
+            :class="{active: active === {{ loop.index0 }}}"></button>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% endif %}
+
+</section>
+{% endif %}
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<div class="container">
+
+  <!-- Category pills -->
+  <section class="section" style="padding-bottom:0;">
+    <div class="category-scroll">
+      <a href="/" class="cat-pill {% if not category %}active{% endif %}">🏪 সব পণ্য</a>
+      {% for cat in categories %}
+      <a href="/category/{{ cat.slug }}"
+         class="cat-pill {% if category and category.slug == cat.slug %}active{% endif %}">{{ cat.name }}</a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Featured row -->
+  {% if not category and featured %}
+  <section class="section">
+    <h2 class="section-title">⭐ বিশেষ পণ্য</h2>
+    <div class="featured-scroll">
+      {% for product in featured %}{% include "includes/product_card.html" %}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- All / category products -->
+  <section class="section">
+    <h2 class="section-title">
+      {% if category %}{{ category.name }}{% else %}সব পণ্য{% endif %}
+      {% if total is defined %}<small style="font-size:.8rem;font-weight:400;color:var(--text-muted)">({{ total }}টি পণ্য)</small>{% endif %}
+    </h2>
+    {% if products %}
+    <div class="product-grid">
+      {% for product in products %}{% include "includes/product_card.html" %}{% endfor %}
+    </div>
+    {% if pages is defined and pages > 1 %}
+    <div class="pagination">
+      {% if page > 1 %}<a href="?page={{ page-1 }}" class="page-link">‹</a>{% else %}<span class="page-link disabled">‹</span>{% endif %}
+      {% for p in range(1, pages+1) %}<a href="?page={{ p }}" class="page-link {% if p==page %}active{% endif %}">{{ p }}</a>{% endfor %}
+      {% if page < pages %}<a href="?page={{ page+1 }}" class="page-link">›</a>{% else %}<span class="page-link disabled">›</span>{% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="empty-state">
+      <svg width="80" height="80" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>
+      <h2>কোনো পণ্য নেই</h2>
+      <p>শীঘ্রই নতুন পণ্য আসছে!</p>
+    </div>
+    {% endif %}
+  </section>
+
+</div>
+{% endblock %}

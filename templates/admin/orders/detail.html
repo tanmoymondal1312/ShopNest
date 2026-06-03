@@ -1,0 +1,124 @@
+{% extends "admin/base.html" %}
+{% block title %}অর্ডার #{{ order.id }}{% endblock %}
+{% block page_title %}অর্ডার #{{ order.id }}{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">অর্ডার #{{ order.id }}</div>
+    <div class="page-subtitle">{{ order.created_at[:16] }}</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    {% if settings.whatsapp %}
+    <a href="https://wa.me/{{ order.customer_phone }}" target="_blank" class="btn btn-success">
+      💬 WhatsApp
+    </a>
+    {% endif %}
+    <a href="/admin/orders" class="btn btn-secondary">← ফিরে যান</a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:start;">
+
+  <!-- Left -->
+  <div>
+    <!-- Customer info -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><span class="card-title">গ্রাহকের তথ্য</span></div>
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <label>নাম</label>
+            <p>{{ order.customer_name }}</p>
+          </div>
+          <div class="info-item">
+            <label>ফোন</label>
+            <p><a href="tel:{{ order.customer_phone }}" style="color:var(--admin-accent);">{{ order.customer_phone }}</a></p>
+          </div>
+          {% if order.address %}
+          <div class="info-item" style="grid-column:1/-1;">
+            <label>ঠিকানা</label>
+            <p>{{ order.address }}</p>
+          </div>
+          {% endif %}
+          {% if order.note %}
+          <div class="info-item" style="grid-column:1/-1;">
+            <label>বিশেষ নির্দেশনা</label>
+            <p>{{ order.note }}</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Order items -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">অর্ডারের পণ্য</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ছবি</th>
+              <th>পণ্য</th>
+              <th>দাম</th>
+              <th>পরিমাণ</th>
+              <th>মোট</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td>
+                {% if item.image %}
+                <img src="/static/uploads/products/{{ item.image }}" class="table-img" alt="{{ item.product_name }}">
+                {% else %}
+                <div class="table-img-placeholder">📦</div>
+                {% endif %}
+              </td>
+              <td style="font-weight:600;">{{ item.product_name }}</td>
+              <td>{{ settings.currency_symbol }}{{ "%.2f"|format(item.price) }}</td>
+              <td>{{ item.quantity }}</td>
+              <td style="font-weight:700;">{{ settings.currency_symbol }}{{ "%.2f"|format(item.price * item.quantity) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" style="text-align:right;font-weight:700;padding:12px 16px;">মোট</td>
+              <td style="font-weight:800;font-size:1.05rem;padding:12px 16px;">{{ settings.currency_symbol }}{{ "%.2f"|format(order.total) }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: status update -->
+  <div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">অর্ডার স্ট্যাটাস</span></div>
+      <div class="card-body">
+        <div style="margin-bottom:16px;">
+          <span class="status-badge status-{{ order.status }}" style="font-size:.875rem;padding:6px 16px;">
+            {{ order.status }}
+          </span>
+        </div>
+        <form method="post" action="/admin/orders/{{ order.id }}/status">
+          <div class="form-group">
+            <label>স্ট্যাটাস পরিবর্তন করুন</label>
+            <select class="form-control" name="new_status">
+              {% for s in ['pending', 'confirmed', 'delivered', 'cancelled'] %}
+              <option value="{{ s }}" {% if order.status == s %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">আপডেট করুন</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
