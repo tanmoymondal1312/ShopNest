@@ -764,36 +764,37 @@ input, select, textarea { font-family: var(--font); }
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    height: 280px;
-    gap: 10px;
+    height: 280px;        /* container = 280px */
+    gap: 8px;
     overflow-x: auto;
     overflow-y: hidden;
     padding-bottom: 4px;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
+    align-content: flex-start;
   }
   .featured-scroll::-webkit-scrollbar { display: none; }
   .featured-scroll .product-card {
+    flex: 0 0 130px;      /* 130 + 8 + 130 = 268 < 280 → wrap triggers */
     width: 130px;
-    height: 135px;
-    flex: none;
+    max-height: 130px;
+    overflow: hidden;
     border-radius: 10px;
   }
   .featured-scroll .product-card-img-wrap {
-    height: 78px;
+    height: 80px;
     flex-shrink: 0;
   }
-  /* Compact card body — hide button, tighten spacing */
   .featured-scroll .product-card-body {
-    padding: 6px 8px;
-    gap: 3px;
+    padding: 5px 8px 6px;
+    gap: 2px;
   }
   .featured-scroll .product-card-name {
-    font-size: .7rem;
+    font-size: .68rem;
     -webkit-line-clamp: 1;
   }
-  .featured-scroll .price-current { font-size: .8rem; }
-  .featured-scroll .price-old     { font-size: .65rem; }
+  .featured-scroll .price-current { font-size: .78rem; }
+  .featured-scroll .price-old     { font-size: .62rem; }
   .featured-scroll .btn-add-cart  { display: none; }
 }
 
