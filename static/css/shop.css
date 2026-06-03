@@ -634,9 +634,10 @@ input, select, textarea { font-family: var(--font); }
   position: relative;
   /* NO overflow:hidden — keeps height = pills only, no margin bleed */
 }
-/* Strip inner margin so wrapper height equals pills height exactly */
+/* Strip margin + padding so wrapper height = pills height exactly */
 .cat-scroll-wrap .category-scroll {
   margin-bottom: 0;
+  padding-bottom: 0;
 }
 /* Right fade gradient */
 .cat-scroll-wrap::after {
@@ -649,12 +650,12 @@ input, select, textarea { font-family: var(--font); }
   z-index: 2;
   transition: opacity .25s;
 }
-/* Arrow — top:0 bottom:0 margin:auto = perfect vertical center regardless of height */
+/* Arrow — top:50% + transform = pixel-perfect vertical center */
 .cat-scroll-btn {
   position: absolute;
   right: 5px;
-  top: 0; bottom: 0;
-  margin-top: auto; margin-bottom: auto;
+  top: 50%;
+  transform: translateY(-50%);
   width: 28px; height: 28px;
   background: #fff;
   border: 1.5px solid var(--border);
