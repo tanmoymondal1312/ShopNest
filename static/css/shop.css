@@ -366,6 +366,7 @@ input, select, textarea { font-family: var(--font); }
 .cart-btn-icon  { display: flex; align-items: center; flex-shrink: 0; }
 .cart-btn-label { display: none; font-size: .8rem; font-weight: 700; }
 @media (min-width: 480px) { .cart-btn-label { display: block; } }
+@media (max-width: 479px) { .cart-btn { margin-left: 20px; } }
 
 .cart-badge {
   display: flex;
