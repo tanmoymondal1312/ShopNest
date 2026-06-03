@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}"{{ q }}" — খুঁজুন — {{ settings.store_name }}{% endblock %}
+{% block title %}{% if q %}"{{ q }}" — খুঁজুন — {{ settings.store_name }}{% else %}পণ্য খুঁজুন — {{ settings.store_name }}{% endif %}{% endblock %}
+{% block meta_desc %}{% if q %}{{ settings.store_name }}-এ "{{ q }}" সার্চ ফলাফল। মোট {{ total }} টি পণ্য পাওয়া গেছে।{% else %}{{ settings.store_name }}-এ আপনার পছন্দের পণ্য খুঁজুন।{% endif %}{% endblock %}
+{% block og_title %}{% if q %}"{{ q }}" — {{ settings.store_name }}{% else %}পণ্য খুঁজুন — {{ settings.store_name }}{% endif %}{% endblock %}
+{% block extra_css %}<meta name="robots" content="noindex, follow">{% endblock %}
 
 {% block content %}
 <div class="container">

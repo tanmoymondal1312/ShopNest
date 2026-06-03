@@ -1,5 +1,8 @@
 {% extends "base.html" %}
-{% block title %}{% if category %}{{ category.name }} — {% endif %}{{ settings.store_name }}{% endblock %}
+{% block title %}{% if category %}{{ category.name }} — {{ settings.store_name }}{% else %}{{ settings.store_name }} — {{ settings.tagline }}{% endif %}{% endblock %}
+{% block meta_desc %}{% if category %}{{ category.name }} ক্যাটাগরির সেরা পণ্য — {{ settings.store_name }}{% else %}{{ settings.hero_tagline or settings.tagline }}{% endif %}{% endblock %}
+{% block og_title %}{% if category %}{{ category.name }} — {{ settings.store_name }}{% else %}{{ settings.store_name }}{% endif %}{% endblock %}
+{% block og_desc %}{{ settings.hero_tagline or settings.tagline }}{% endblock %}
 
 {% block content %}
 {% if not category %}

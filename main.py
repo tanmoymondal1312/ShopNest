@@ -183,6 +183,35 @@ def make_slug(name: str) -> str:
     return slug or "product"
 
 
+# ─── robots.txt + sitemap.xml ────────────────────────────────────────────────
+
+@app.get("/robots.txt")
+async def robots_txt(request: Request):
+    from fastapi.responses import PlainTextResponse
+    base = str(request.base_url).rstrip("/")
+    content = f"User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\nSitemap: {base}/sitemap.xml\n"
+    return PlainTextResponse(content, media_type="text/plain")
+
+
+@app.get("/sitemap.xml")
+async def sitemap_xml(request: Request):
+    from fastapi.responses import Response as FastResponse
+    base = str(request.base_url).rstrip("/")
+    async for db in get_db():
+        products   = await fetch_products(db, limit=1000)
+        categories = await fetch_categories(db)
+    urls = [base + "/", base + "/search"]
+    for cat in categories:
+        urls.append(f"{base}/category/{cat['slug']}")
+    for p in products:
+        urls.append(f"{base}/product/{p['slug']}")
+    xml_urls = "\n".join(
+        f"  <url><loc>{u}</loc><changefreq>weekly</changefreq></url>" for u in urls
+    )
+    xml = f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{xml_urls}\n</urlset>'
+    return FastResponse(content=xml, media_type="application/xml")
+
+
 # ─── Search suggestions API ───────────────────────────────────────────────────
 
 @app.get("/api/suggestions")
