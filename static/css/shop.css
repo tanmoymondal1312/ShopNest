@@ -759,8 +759,21 @@ input, select, textarea { font-family: var(--font); }
   gap: 20px;
 }
 @media (max-width: 1024px) { .featured-scroll { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 768px)  { .featured-scroll { grid-template-columns: repeat(2, 1fr); gap: 14px; } }
-@media (max-width: 480px)  { .featured-scroll { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+@media (max-width: 768px)  {
+  /* 2-row horizontal scroll: products fill top row first, then bottom row */
+  .featured-scroll {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    grid-auto-flow: column;
+    grid-auto-columns: 160px;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+  }
+  .featured-scroll::-webkit-scrollbar { display: none; }
+}
 
 /* ── PRODUCT DETAIL PAGE ───────────────────────────────────────────────────── */
 .breadcrumb {
