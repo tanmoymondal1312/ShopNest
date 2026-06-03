@@ -799,16 +799,17 @@ input, select, textarea { font-family: var(--font); }
   .featured-scroll .price-old     { font-size: .62rem; }
   .featured-scroll .btn-add-cart  { display: none; }
   /* Tiny badges for compact cards */
-  /* সেল — top left */
-  .featured-scroll .badge-sale {
+  /* বিশেষ — top left */
+  .featured-scroll .badge-featured {
     font-size: .5rem;
     padding: 1px 4px;
     border-radius: 3px;
     top: 4px;
     left: 4px;
+    right: auto;
   }
-  /* বিশেষ — top right, override base right:10px */
-  .featured-scroll .badge-featured {
+  /* সেল — top right */
+  .featured-scroll .badge-sale {
     font-size: .5rem;
     padding: 1px 4px;
     border-radius: 3px;
