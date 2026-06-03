@@ -760,12 +760,12 @@ input, select, textarea { font-family: var(--font); }
 }
 @media (max-width: 1024px) { .featured-scroll { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 768px) {
-  /* 2-row horizontal scroll via flex column + wrap */
+  /* 2-row horizontal scroll: fixed height forces flex-wrap into 2-column layout */
   .featured-scroll {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    max-height: 560px;   /* ~2 product cards tall (265px each + 12px gap) */
+    height: 560px;       /* FIXED height triggers column wrap after 2 cards */
     gap: 12px;
     overflow-x: auto;
     overflow-y: hidden;
@@ -776,7 +776,13 @@ input, select, textarea { font-family: var(--font); }
   .featured-scroll::-webkit-scrollbar { display: none; }
   .featured-scroll .product-card {
     width: 155px;
-    flex: none;           /* prevent flex from resizing the card */
+    height: 270px;       /* fixed card height keeps both rows equal */
+    flex: none;
+  }
+  /* Keep image proportional inside fixed-height card */
+  .featured-scroll .product-card-img-wrap {
+    height: 155px;
+    flex-shrink: 0;
   }
 }
 
