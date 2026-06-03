@@ -629,6 +629,47 @@ input, select, textarea { font-family: var(--font); }
   border-radius: 1px;
 }
 
+/* ── Category scroll wrapper + arrow (all devices) ─────────────────────────── */
+.cat-scroll-wrap {
+  position: relative;
+  /* NO overflow:hidden — keeps height = pills only, no margin bleed */
+}
+/* Strip inner margin so wrapper height equals pills height exactly */
+.cat-scroll-wrap .category-scroll {
+  margin-bottom: 0;
+}
+/* Right fade gradient */
+.cat-scroll-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 60px; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,.97));
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity .25s;
+}
+/* Arrow — top:0 bottom:0 margin:auto = perfect vertical center regardless of height */
+.cat-scroll-btn {
+  position: absolute;
+  right: 5px;
+  top: 0; bottom: 0;
+  margin-top: auto; margin-bottom: auto;
+  width: 28px; height: 28px;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 3;
+  color: var(--text-muted);
+  animation: arrow-pulse 2s ease-in-out infinite;
+  transition: opacity .25s, box-shadow .15s;
+}
+.cat-scroll-btn:hover { box-shadow: 0 3px 12px rgba(0,0,0,.18); color: var(--accent); }
+.cat-scroll-wrap.scroll-end::after        { opacity: 0; }
+.cat-scroll-wrap.scroll-end .cat-scroll-btn { opacity: 0; pointer-events: none; }
+
 /* ── Category pills ────────────────────────────────────────────────────────── */
 .category-scroll {
   display: flex;
