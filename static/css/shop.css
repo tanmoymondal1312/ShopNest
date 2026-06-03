@@ -897,6 +897,82 @@ input, select, textarea { font-family: var(--font); }
 .btn-add-cart-lg:active:not(:disabled) { transform: scale(.98); }
 .btn-add-cart-lg:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
 
+/* ── Direct Order button ── */
+.btn-direct-order {
+  width: 100%;
+  padding: 13px;
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--font);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background .15s, color .15s, transform .1s;
+}
+.btn-direct-order:hover  { background: var(--accent); color: #fff; }
+.btn-direct-order:active { transform: scale(.98); }
+
+/* ── Order dialog ── */
+.order-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(3px);
+}
+.order-dialog {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 36px 28px 28px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+.order-dialog-icon { font-size: 2.5rem; margin-bottom: 14px; line-height: 1; }
+.order-dialog-title {
+  font-size: 1.15rem; font-weight: 800;
+  color: var(--text); margin-bottom: 12px; line-height: 1.4;
+}
+.order-dialog-desc {
+  font-size: .88rem; line-height: 1.7;
+  color: var(--text-muted); margin-bottom: 12px;
+}
+.order-dialog-desc strong { color: var(--text); font-weight: 700; }
+.order-dialog-note {
+  font-size: .78rem; color: #166534;
+  background: #dcfce7; border-radius: 8px;
+  padding: 8px 12px; margin-bottom: 20px; font-weight: 500;
+}
+.order-dialog-actions { display: flex; gap: 10px; }
+.order-dialog-cart-btn {
+  flex: 1; padding: 11px;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: var(--radius);
+  font-size: .88rem; font-weight: 700; font-family: var(--font);
+  cursor: pointer; transition: background .15s;
+}
+.order-dialog-cart-btn:hover { background: var(--accent-dark); }
+.order-dialog-close-btn {
+  flex: 1; padding: 11px;
+  background: var(--bg-soft); color: var(--text-muted);
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  font-size: .88rem; font-weight: 600; font-family: var(--font);
+  cursor: pointer; transition: background .15s;
+}
+.order-dialog-close-btn:hover { background: var(--border); }
+
 /* ── SEARCH PAGE ───────────────────────────────────────────────────────────── */
 .search-bar-lg {
   display: flex;

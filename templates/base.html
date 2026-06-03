@@ -31,7 +31,7 @@
     window.CURRENCY = "{{ settings.currency_symbol }}";
   </script>
 </head>
-<body x-data>
+<body x-data="{ comingSoonDialog: false }" @open-coming-soon.window="comingSoonDialog = true">
   {% include "includes/navbar.html" %}
 
   {% block content %}{% endblock %}
@@ -86,7 +86,7 @@
         <span>মোট</span>
         <span x-text="window.CURRENCY + $store.cart.total.toFixed(2)"></span>
       </div>
-      <button class="btn-checkout" @click="$store.cart.openCheckout()">অর্ডার করুন →</button>
+      <button class="btn-checkout" @click="$store.cart.closeDrawer(); $dispatch('open-coming-soon')">অর্ডার করুন →</button>
     </div>
   </div>
 
@@ -128,6 +128,42 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ── Coming Soon dialog (cart order + product direct order) ─── -->
+  <div class="order-dialog-overlay"
+       x-show="comingSoonDialog"
+       @click.self="comingSoonDialog = false"
+       @keydown.escape.window="comingSoonDialog = false"
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0"
+       x-transition:enter-end="opacity-100"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="opacity-100"
+       x-transition:leave-end="opacity-0"
+       style="display:none;">
+    <div class="order-dialog">
+      <div class="order-dialog-icon">🔒</div>
+      <h3 class="order-dialog-title">এই ফিচার এখন উপলব্ধ নয়</h3>
+      <p class="order-dialog-desc">
+        অনুগ্রহ করে সাইটটি কিনুন, তারপর আমরা এখানে
+        <strong>পেমেন্ট সিস্টেম</strong> অথবা
+        <strong>ডাইরেক্ট WhatsApp অর্ডার সিস্টেম</strong>
+        ইম্পলিমেন্ট করব।
+      </p>
+      <p class="order-dialog-note">
+        পণ্যগুলো আপনার কার্টে সংরক্ষিত আছে।
+      </p>
+      <div class="order-dialog-actions">
+        <button class="order-dialog-cart-btn"
+                @click="comingSoonDialog = false; $store.cart.openDrawer()">
+          কার্টে ফিরুন
+        </button>
+        <button class="order-dialog-close-btn" @click="comingSoonDialog = false">
+          ঠিক আছে
+        </button>
+      </div>
     </div>
   </div>
 
