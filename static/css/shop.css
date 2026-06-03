@@ -640,7 +640,7 @@ input, select, textarea { font-family: var(--font); }
 }
 @media (max-width: 1024px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 768px)  { .product-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 480px)  { .product-grid { grid-template-columns: 1fr; } }
+@media (max-width: 480px)  { .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
 
 /* ── PRODUCT CARD ──────────────────────────────────────────────────────────── */
 .product-card {
