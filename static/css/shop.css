@@ -660,6 +660,49 @@ input, select, textarea { font-family: var(--font); }
   color: #fff;
 }
 
+
+/* ── Featured scroll hint arrow (mobile only) ──────────────────────────────── */
+.featured-scroll-wrap {
+  position: relative;
+}
+.featured-scroll-arrow {
+  display: none; /* hidden on desktop */
+}
+@media (max-width: 768px) {
+  .featured-scroll-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 48px;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,.92));
+    pointer-events: none;
+    z-index: 2;
+  }
+  .featured-scroll-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    color: var(--text-muted);
+    z-index: 3;
+    animation: arrow-pulse 2s ease-in-out infinite;
+  }
+  @keyframes arrow-pulse {
+    0%,100% { transform: translateY(-50%) translateX(0); opacity: .8; }
+    50%      { transform: translateY(-50%) translateX(3px); opacity: 1; }
+  }
+}
 /* ── PRODUCT GRID ──────────────────────────────────────────────────────────── */
 .product-grid {
   display: grid;
