@@ -943,7 +943,8 @@ input, select, textarea { font-family: var(--font); }
   flex-wrap: wrap;
 }
 .breadcrumb a:hover { color: var(--accent); }
-.breadcrumb span { color: var(--border); }
+.breadcrumb span { color: var(--border); }                           /* › separator */
+.breadcrumb span:last-child { color: var(--text); font-weight: 600; } /* current page */
 
 .product-detail-grid {
   display: grid;
