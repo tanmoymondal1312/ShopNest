@@ -761,8 +761,8 @@ select.form-control { appearance: auto; }
   .card-body > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
 
   /* Tables: allow horizontal scroll, never force overflow */
-  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  table { min-width: 480px; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+  table { min-width: 380px; }
 
   /* Filters bar: stack */
   .filters-bar { flex-direction: column; align-items: stretch; }
@@ -793,5 +793,13 @@ select.form-control { appearance: auto; }
   .admin-2col,
   .admin-3-2col,
   .admin-order-detail-grid { grid-template-columns: 1fr !important; gap: 14px; }
+  /* Critical: grid children default min-width:auto expands them beyond screen */
+  .admin-order-detail-grid > *,
+  .admin-2col > *,
+  .admin-3-2col > * { min-width: 0; max-width: 100%; }
+  /* Table inside card: scroll horizontally, never expand the page */
+  .table-wrap { max-width: 100%; overflow-x: auto; }
+  /* Status card: compact on mobile */
+  .admin-order-detail-grid > div:last-child .card { max-width: 100%; }
   .admin-stat-2col { gap: 10px; } /* stat cards stay 2-col but tighter gap */
 }
