@@ -782,3 +782,14 @@ select.form-control { appearance: auto; }
   z-index: 49;
 }
 .sidebar-overlay.show { display: block; }
+
+/* ── Responsive grid classes (replaces inline styles on admin pages) ── */
+.admin-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+.admin-3-2col { display: grid; grid-template-columns: 3fr 2fr; gap: 20px; align-items: start; }
+.admin-stat-2col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
+
+@media (max-width: 768px) {
+  .admin-2col,
+  .admin-3-2col  { grid-template-columns: 1fr !important; gap: 14px; }
+  .admin-stat-2col { gap: 10px; } /* stat cards stay 2-col but tighter gap */
+}
