@@ -93,6 +93,16 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(VisitorMiddleware)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+
+@app.middleware("http")
+async def uploads_no_cache(request: Request, call_next):
+    """Tell Cloudflare/browsers not to cache uploaded images."""
+    response = await call_next(request)
+    if request.url.path.startswith("/static/uploads/"):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+    return response
+
 templates = Jinja2Templates(directory="templates")
 
 
@@ -118,6 +128,15 @@ templates.env.filters["to_rgb"] = _to_rgb
 
 from datetime import datetime as _dt
 templates.env.globals["current_year"] = lambda: _dt.now().year
+
+def _file_mtime(path: str) -> int:
+    """Return file modification time for cache-busting."""
+    try:
+        return int(os.path.getmtime(path))
+    except OSError:
+        return 0
+
+templates.env.globals["file_mtime"] = _file_mtime
 
 
 def _static_url(path: str) -> str:

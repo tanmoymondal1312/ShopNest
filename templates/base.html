@@ -16,14 +16,14 @@
   <meta property="og:title"       content="{% block og_title %}{{ settings.store_name }} — {{ settings.tagline }} | অনলাইন শপিং বাংলাদেশ{% endblock %}">
   <meta property="og:description" content="{% block og_desc %}{{ settings.hero_tagline or settings.tagline }}। {{ settings.store_name }}-এ হাজারো মানসম্পন্ন পণ্য পাওয়া যায়। নিরাপদ পেমেন্ট, দ্রুত ডেলিভারি এবং সেরা দামে কেনাকাটা করুন।{% endblock %}">
   <meta property="og:url"         content="{{ request.url }}">
-  <meta property="og:image"       content="{% block og_image %}{% if settings.social_image %}{{ request.base_url }}static/{{ settings.social_image }}{% elif settings.logo %}{{ request.base_url }}static/{{ settings.logo }}{% endif %}{% endblock %}">
+  <meta property="og:image"       content="{% block og_image %}{% if settings.social_image %}{{ request.base_url }}static/{{ settings.social_image }}?v={{ file_mtime("static/" + settings.social_image) }}{% elif settings.logo %}{{ request.base_url }}static/{{ settings.logo }}?v={{ file_mtime("static/" + settings.logo) }}{% endif %}{% endblock %}">
   <meta property="og:locale"      content="bn_BD">
 
   <!-- Twitter Card -->
   <meta name="twitter:card"        content="summary_large_image">
   <meta name="twitter:title"       content="{% block tw_title %}{{ settings.store_name }} — {{ settings.tagline }} | অনলাইন শপিং{% endblock %}">
   <meta name="twitter:description" content="{% block tw_desc %}{{ settings.hero_tagline or settings.tagline }}। {{ settings.store_name }}-এ হাজারো মানসম্পন্ন পণ্য — নিরাপদ পেমেন্ট ও দ্রুত ডেলিভারি।{% endblock %}">
-  <meta name="twitter:image"       content="{% block tw_image %}{% if settings.social_image %}{{ request.base_url }}static/{{ settings.social_image }}{% elif settings.logo %}{{ request.base_url }}static/{{ settings.logo }}{% endif %}{% endblock %}">
+  <meta name="twitter:image"       content="{% block tw_image %}{% if settings.social_image %}{{ request.base_url }}static/{{ settings.social_image }}?v={{ file_mtime("static/" + settings.social_image) }}{% elif settings.logo %}{{ request.base_url }}static/{{ settings.logo }}?v={{ file_mtime("static/" + settings.logo) }}{% endif %}{% endblock %}">
 
   <!-- Favicons -->
   {% if settings.logo %}
