@@ -1,0 +1,17 @@
+# Cloudflare Tunnel config — use this if you DON'T have a public VPS
+# (runs ShopNest from your own PC/server through Cloudflare's network)
+#
+# Setup steps:
+#   1. Install cloudflared:  https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+#   2. Login:                cloudflared tunnel login
+#   3. Create tunnel:        cloudflared tunnel create shopnest
+#   4. Copy tunnel ID below
+#   5. Run:                  cloudflared tunnel --config deploy/cloudflare-tunnel.yml run
+
+tunnel: <YOUR_TUNNEL_ID_HERE>
+credentials-file: /root/.cloudflared/<YOUR_TUNNEL_ID_HERE>.json
+
+ingress:
+  - hostname: shopnest.mediaghor.com
+    service: http://localhost:9000
+  - service: http_status:404
