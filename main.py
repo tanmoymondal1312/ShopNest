@@ -116,6 +116,9 @@ def _to_rgb(hex_color: str) -> str:
 templates.env.filters["darken"] = _darken
 templates.env.filters["to_rgb"] = _to_rgb
 
+from datetime import datetime as _dt
+templates.env.globals["current_year"] = lambda: _dt.now().year
+
 
 def _static_url(path: str) -> str:
     """Return /static/path?v=<mtime> so browsers always fetch updated files."""
