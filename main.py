@@ -41,6 +41,17 @@ UPLOAD_DIR = Path("static/uploads/products")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
+# ─── HEAD request middleware (Facebook/WhatsApp link preview sends HEAD) ──────
+
+class HeadMiddleware(BaseHTTPMiddleware):
+    """Return 200 for any HEAD request so Facebook/WhatsApp link previews work."""
+    async def dispatch(self, request: Request, call_next):
+        if request.method == "HEAD":
+            from fastapi.responses import Response as _R
+            return _R(status_code=200, headers={"content-type": "text/html; charset=utf-8"})
+        return await call_next(request)
+
+
 # ─── Visitor tracking middleware ──────────────────────────────────────────────
 
 SKIP_PREFIXES = ("/static/", "/admin", "/robots.txt", "/sitemap.xml", "/favicon")
@@ -77,6 +88,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None)
+app.add_middleware(HeadMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(VisitorMiddleware)
 app.mount("/static", StaticFiles(directory="static"), name="static")
