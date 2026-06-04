@@ -1,42 +1,100 @@
-/* ── FOOTER (minimal) ───────────────────────────────────────────────────────── */
+/* ── FOOTER (minimal two-row) ───────────────────────────────────────────────── */
 .ft-simple {
   border-top: 1px solid var(--border);
   margin-top: 48px;
   background: #fff;
 }
-.ft-simple-inner {
+/* Row 1: nav links + socials + whatsapp */
+.ft-row1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 18px 16px;
+  gap: 10px;
+  padding: 16px 16px 12px;
 }
 .ft-simple-links {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   flex-wrap: wrap;
 }
 .ft-simple-links a {
-  font-size: .82rem;
+  font-size: .8rem;
   color: var(--text-muted);
   transition: color .15s;
 }
 .ft-simple-links a:hover { color: var(--accent); }
+
+/* Right side of row 1 */
+.ft-row1-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+/* Social icons */
+.ft-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ft-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: color .15s, border-color .15s, background .15s;
+}
+.ft-icon:hover { color: var(--accent); border-color: var(--accent); background: #f5f3ff; }
+/* WhatsApp number link */
+.ft-wa-number {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .78rem;
+  font-weight: 600;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 99px;
+  padding: 4px 11px;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.ft-wa-number:hover { background: #dcfce7; }
+
+/* Divider */
+.ft-divider-line {
+  height: 1px;
+  background: var(--border);
+  margin: 0 16px;
+}
+/* Row 2: brand + copyright */
+.ft-row2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 16px 14px;
+}
 .ft-simple-brand {
-  font-size: .95rem;
+  font-size: .9rem;
   font-weight: 800;
   color: var(--accent);
   letter-spacing: -.02em;
   text-decoration: none;
 }
-.ft-simple-copy {
-  font-size: .78rem;
-  color: var(--text-muted);
-}
+.ft-simple-copy { font-size: .75rem; color: var(--text-muted); }
+
 @media (max-width: 600px) {
-  .ft-simple-inner { flex-direction: column; align-items: center; text-align: center; gap: 8px; }
+  .ft-row1 { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .ft-row1-right { gap: 10px; }
+  .ft-row2 { flex-direction: column; align-items: center; text-align: center; }
 }
 
 /* ── CSS Custom Properties ─────────────────────────────────────────────────── */
