@@ -852,9 +852,10 @@ async def admin_settings_save(
             import io
             data = await social_image.read()
             img = Image.open(io.BytesIO(data)).convert("RGB")
-            img.thumbnail((800, 600))
+            # OG standard: 1200×630 — must for Facebook/WhatsApp/LinkedIn preview
+            img = img.resize((1200, 630), Image.LANCZOS)
             si_path = Path("static/uploads") / "social_image.webp"
-            img.save(si_path, "WEBP", quality=88)
+            img.save(si_path, "WEBP", quality=90)
             updates["social_image"] = "uploads/social_image.webp"
 
         await save_settings(db, updates)
