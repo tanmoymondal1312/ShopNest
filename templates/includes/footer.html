@@ -4,6 +4,7 @@
 </a>
 {% endmacro %}
 
+<div class="ft-bridge" aria-hidden="true"></div>
 <footer class="ft">
 
   <!-- ── Accent top bar ─────────────────────────────────────────── -->
@@ -83,33 +84,29 @@
       {% endif %}
     </div>
 
-    <!-- Col 2: Quick links ─────────────────────────────────────── -->
-    <div class="ft-col">
-      <h4 class="ft-col-title">
-        <span class="ft-col-dot"></span>দ্রুত লিংক
-      </h4>
-      <ul class="ft-links">
-        <li><a href="/">🏠 হোম</a></li>
-        <li><a href="/search">🔍 পণ্য খুঁজুন</a></li>
-        {% for cat in (categories or [])[:5] %}
-        <li><a href="/category/{{ cat.slug }}">{{ cat.name }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <!-- Col 3: Customer ────────────────────────────────────────── -->
-    <div class="ft-col">
-      <h4 class="ft-col-title">
-        <span class="ft-col-dot"></span>গ্রাহক সেবা
-      </h4>
-      <ul class="ft-links">
-        <li><a href="/search">সব পণ্য</a></li>
-        <li><a href="/">বিশেষ অফার</a></li>
-        {% if settings.whatsapp %}
-        <li><a href="https://wa.me/{{ settings.whatsapp }}" target="_blank" rel="noopener">অর্ডার সম্পর্কে জানুন</a></li>
-        {% endif %}
-        <li><a href="/search">নতুন পণ্য</a></li>
-      </ul>
+    <!-- Col 2 + 3: Links (wrapped for mobile 2-col grid) ──────── -->
+    <div class="ft-mobile-links">
+      <div class="ft-col">
+        <h4 class="ft-col-title"><span class="ft-col-dot"></span>দ্রুত লিংক</h4>
+        <ul class="ft-links">
+          <li><a href="/">🏠 হোম</a></li>
+          <li><a href="/search">🔍 পণ্য খুঁজুন</a></li>
+          {% for cat in (categories or [])[:4] %}
+          <li><a href="/category/{{ cat.slug }}">{{ cat.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h4 class="ft-col-title"><span class="ft-col-dot"></span>গ্রাহক সেবা</h4>
+        <ul class="ft-links">
+          <li><a href="/search">সব পণ্য</a></li>
+          <li><a href="/">বিশেষ অফার</a></li>
+          {% if settings.whatsapp %}
+          <li><a href="https://wa.me/{{ settings.whatsapp }}" target="_blank" rel="noopener">অর্ডার জানুন</a></li>
+          {% endif %}
+          <li><a href="/search">নতুন পণ্য</a></li>
+        </ul>
+      </div>
     </div>
 
     <!-- Col 4: Contact ─────────────────────────────────────────── -->
