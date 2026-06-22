@@ -1,13 +1,6 @@
 # Environment & secrets
 .env
 
-# Database (contains real customer/order data)
-shop.db
-*.db
-
-# Uploaded images (large binaries, regenerated at runtime)
-static/uploads/
-
 # Python cache
 __pycache__/
 *.py[cod]
