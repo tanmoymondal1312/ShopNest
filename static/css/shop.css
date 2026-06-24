@@ -721,6 +721,7 @@ input, select, textarea { font-family: var(--font); }
   align-items: center;
   gap: 8px;
 }
+.section-title-icon { width: 28px; height: 28px; flex-shrink: 0; }
 .section-title::after {
   content: '';
   flex: 1;
