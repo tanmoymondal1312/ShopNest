@@ -106,12 +106,12 @@ async def init_db():
             ("social_twitter",   ""),
             ("social_tiktok",    ""),
             # SEO
-            ("seo_title",           ""),
-            ("seo_description",     ""),
-            ("seo_keywords",        ""),
-            ("seo_product_suffix",  ""),
-            ("seo_category_suffix", ""),
-            ("seo_alt_suffix",      ""),
+            ("seo_title",           "ShopNest — সেরা দামে অনলাইন শপিং বাংলাদেশ"),
+            ("seo_description",     "ShopNest-এ পোশাক, গ্যাজেট, মুদি পণ্য সেরা দামে কিনুন। সারাদেশে দ্রুত ডেলিভারি ও নিরাপদ পেমেন্ট।"),
+            ("seo_keywords",        "অনলাইন শপিং, বাংলাদেশ, পোশাক, গ্যাজেট, মুদি পণ্য, সেরা দাম"),
+            ("seo_product_suffix",  "সেরা দামে কিনুন"),
+            ("seo_category_suffix", "সেরা দামে কিনুন"),
+            ("seo_alt_suffix",      "সেরা দামে কিনুন"),
         ]
         for key, value in defaults:
             await db.execute(
