@@ -277,12 +277,21 @@
 .seo-char-bar.warn{color:#d97706;}
 .seo-char-bar.good{color:#16a34a;}
 .seo-char-bar.over{color:#dc2626;font-weight:600;}
+.seo-error{display:none;margin-top:4px;padding:8px 12px;background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;color:#dc2626;font-size:.8rem;font-weight:600;}
+.seo-error.show{display:block;}
+.seo-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;background:#dc2626;color:#fff;padding:14px 28px;border-radius:10px;font-size:.9rem;font-weight:600;box-shadow:0 8px 30px rgba(220,38,38,.35);display:none;max-width:90vw;text-align:center;line-height:1.5;}
+.seo-toast.show{display:block;animation:toastIn .3s ease;}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-20px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
 @media(max-width:600px){
   .stabs{overflow-x:auto;flex-wrap:nowrap;}
   .stab{white-space:nowrap;padding:8px 14px;font-size:.8rem;}
 }
 </style>
+
+<div class="seo-toast" id="seo-toast"></div>
+
 <script>
+// Tab switching
 document.querySelectorAll('.stab').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
@@ -291,19 +300,71 @@ document.querySelectorAll('.stab').forEach(btn => {
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
   });
 });
+
+// Char counter + inline error
 document.querySelectorAll('.seo-char-input').forEach(el => {
   const bar = el.parentElement.querySelector('.seo-char-bar');
   if (!bar) return;
   const countEl = bar.querySelector('.seo-char-count');
   const max = parseInt(el.dataset.max) || parseInt(el.maxLength) || 999;
   const min = parseInt(el.dataset.min) || 0;
+
+  let errEl = el.parentElement.querySelector('.seo-error');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.className = 'seo-error';
+    bar.after(errEl);
+  }
+
   function update() {
     const len = el.value.length;
     countEl.textContent = len;
     bar.className = 'seo-char-bar ' + (len > max ? 'over' : len >= min ? 'good' : 'warn');
+    if (len > 0 && len < min) {
+      errEl.textContent = `সর্বনিম্ন ${min} অক্ষর দরকার (এখন ${len}টি)`;
+      errEl.classList.add('show');
+    } else if (len > max) {
+      errEl.textContent = `সর্বোচ্চ ${max} অক্ষর (এখন ${len}টি — ${len - max}টি বেশি)`;
+      errEl.classList.add('show');
+    } else {
+      errEl.classList.remove('show');
+    }
   }
   el.addEventListener('input', update);
   update();
+});
+
+// Form submit validation — block + toast
+document.querySelector('form').addEventListener('submit', function(e) {
+  const rules = [
+    { name: 'seo_title',           label: 'SEO টাইটেল',              min: 30, max: 60 },
+    { name: 'seo_description',     label: 'SEO বিবরণ',               min: 120, max: 160 },
+    { name: 'seo_product_suffix',  label: 'পণ্যের টাইটেল সাফিক্স',  min: 5, max: 30 },
+    { name: 'seo_category_suffix', label: 'ক্যাটাগরি টাইটেল সাফিক্স', min: 5, max: 30 },
+  ];
+
+  const errors = [];
+  rules.forEach(r => {
+    const el = this.querySelector(`[name="${r.name}"]`);
+    if (!el) return;
+    const len = el.value.trim().length;
+    if (len < r.min) errors.push(`${r.label}: সর্বনিম্ন ${r.min} অক্ষর (এখন ${len}টি)`);
+    else if (len > r.max) errors.push(`${r.label}: সর্বোচ্চ ${r.max} অক্ষর (এখন ${len}টি)`);
+  });
+
+  if (errors.length) {
+    e.preventDefault();
+    const toast = document.getElementById('seo-toast');
+    toast.innerHTML = errors.join('<br>');
+    toast.classList.add('show');
+    // Switch to SEO tab
+    document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.stab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('[data-tab="seo"]').classList.add('active');
+    document.getElementById('tab-seo').classList.add('active');
+    // Auto-hide after 5s
+    setTimeout(() => toast.classList.remove('show'), 5000);
+  }
 });
 </script>
 

@@ -848,6 +848,24 @@ async def admin_settings_save(
     social_image: UploadFile = File(None),
     admin: str = Depends(require_admin),
 ):
+    # Server-side SEO field validation
+    seo_rules = [
+        (seo_title.strip(),           "SEO টাইটেল",              30, 60),
+        (seo_description.strip(),     "SEO বিবরণ",               120, 160),
+        (seo_product_suffix.strip(),  "পণ্যের টাইটেল সাফিক্স",  5, 30),
+        (seo_category_suffix.strip(), "ক্যাটাগরি টাইটেল সাফিক্স", 5, 30),
+    ]
+    errors = []
+    for val, label, mn, mx in seo_rules:
+        if len(val) < mn:
+            errors.append(f"{label}: সর্বনিম্ন {mn} অক্ষর দিন (এখন {len(val)}টি)")
+        elif len(val) > mx:
+            errors.append(f"{label}: সর্বোচ্চ {mx} অক্ষর (এখন {len(val)}টি)")
+    if errors:
+        response = RedirectResponse("/admin/settings", status_code=302)
+        flash(response, " | ".join(errors), "error")
+        return response
+
     async for db in get_db():
         updates = {
             "store_name":       store_name.strip(),
