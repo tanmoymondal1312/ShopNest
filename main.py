@@ -95,12 +95,13 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.middleware("http")
-async def uploads_no_cache(request: Request, call_next):
-    """Tell Cloudflare/browsers not to cache uploaded images."""
+async def static_cache_headers(request: Request, call_next):
     response = await call_next(request)
-    if request.url.path.startswith("/static/uploads/"):
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        response.headers["Pragma"] = "no-cache"
+    if request.url.path.startswith("/static/"):
+        if request.url.path.startswith("/static/uploads/"):
+            response.headers["Cache-Control"] = "public, max-age=86400, stale-while-revalidate=604800"
+        else:
+            response.headers["Cache-Control"] = "public, max-age=2592000, immutable"
     return response
 
 templates = Jinja2Templates(directory="templates")

@@ -4,6 +4,11 @@
 {% block og_title %}{% if category %}{{ category.name }} — {{ settings.store_name }} | অনলাইন শপিং{% else %}{{ settings.store_name }} — {{ settings.tagline }} | অনলাইন শপিং{% endif %}{% endblock %}
 {% block og_desc %}{{ settings.hero_tagline or settings.tagline }}। {{ settings.store_name }}-এ হাজারো মানসম্পন্ন পণ্য। নিরাপদ পেমেন্ট, দ্রুত ডেলিভারি ও সেরা দামে কেনাকাটা করুন।{% endblock %}
 
+{% block preload %}
+{% if slider and slider[0].image %}
+<link rel="preload" as="image" href="/static/uploads/products/{{ slider[0].image }}">
+{% endif %}
+{% endblock %}
 {% block content %}
 {% if not category %}
 <!-- ══════════════════════════════════════════════════════════
@@ -59,7 +64,7 @@
           <div class="hp-card-img">
             {% if product.image %}
             <img src="/static/uploads/products/{{ product.image }}"
-                 alt="{{ product.name }}" loading="lazy">
+                 alt="{{ product.name }}" loading="eager" fetchpriority="high">
             {% else %}
             <div class="hp-card-no-img">
               <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
