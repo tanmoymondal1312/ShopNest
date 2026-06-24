@@ -6,8 +6,8 @@
 
       <div class="ft-simple-links">
         <a href="/">হোম</a>
-        <a href="/search">পণ্য</a>
-        {% for cat in (categories or [])[:3] %}
+        <a href="/search">সব পণ্য</a>
+        {% for cat in (categories or []) %}
         <a href="/category/{{ cat.slug }}">{{ cat.name }}</a>
         {% endfor %}
       </div>

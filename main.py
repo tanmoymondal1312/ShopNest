@@ -235,15 +235,15 @@ async def sitemap_xml(request: Request):
     async for db in get_db():
         products   = await fetch_products(db, limit=1000)
         categories = await fetch_categories(db)
-    urls = [base + "/", base + "/search"]
+    from datetime import datetime
+    today = datetime.now().strftime("%Y-%m-%d")
+    entries = [f'  <url><loc>{base}/</loc><lastmod>{today}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>']
     for cat in categories:
-        urls.append(f"{base}/category/{cat['slug']}")
+        entries.append(f'  <url><loc>{base}/category/{cat["slug"]}</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>')
     for p in products:
-        urls.append(f"{base}/product/{p['slug']}")
-    xml_urls = "\n".join(
-        f"  <url><loc>{u}</loc><changefreq>weekly</changefreq></url>" for u in urls
-    )
-    xml = f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{xml_urls}\n</urlset>'
+        entries.append(f'  <url><loc>{base}/product/{p["slug"]}</loc><lastmod>{p["created_at"][:10] if p["created_at"] else today}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>')
+    entries.append(f'  <url><loc>{base}/search</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>')
+    xml = f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(entries) + '\n</urlset>'
     return FastResponse(content=xml, media_type="application/xml")
 
 

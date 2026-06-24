@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Primary SEO -->
-  <title>{% block title %}{{ settings.store_name }} — {{ settings.tagline }}{% endblock %}</title>
+  <title>{% block title %}{{ settings.store_name }} — সেরা দামে অনলাইন শপিং বাংলাদেশ{% endblock %}</title>
   <meta name="description" content="{% block meta_desc %}{{ settings.hero_tagline or settings.tagline }}। {{ settings.store_name }}-এ হাজারো মানসম্পন্ন পণ্য পাওয়া যায়। নিরাপদ পেমেন্ট, দ্রুত ডেলিভারি এবং সেরা দামে কেনাকাটা করুন।{% endblock %}">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="{{ request.url }}">
@@ -194,6 +194,37 @@
       </div>
     </div>
   </div>
+
+  <!-- Schema.org structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": {{ settings.store_name | tojson }},
+    "url": "{{ request.base_url }}",
+    {% if settings.logo %}"logo": "{{ request.base_url }}static/{{ settings.logo }}",{% endif %}
+    "description": {{ (settings.hero_tagline or settings.tagline) | tojson }},
+    "sameAs": [
+      {% if settings.social_facebook %}"{{ settings.social_facebook }}"{% endif %}
+      {% if settings.social_instagram %}{% if settings.social_facebook %},{% endif %}"{{ settings.social_instagram }}"{% endif %}
+      {% if settings.social_youtube %}{% if settings.social_facebook or settings.social_instagram %},{% endif %}"{{ settings.social_youtube }}"{% endif %}
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": {{ settings.store_name | tojson }},
+    "url": "{{ request.base_url }}",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "{{ request.base_url }}search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+  {% block schema %}{% endblock %}
 
   <script defer src="{{ static_url('js/shop.js') }}"></script>
   {% block extra_js %}{% endblock %}
