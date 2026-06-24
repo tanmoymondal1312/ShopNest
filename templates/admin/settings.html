@@ -105,6 +105,73 @@
         </div>
       </div>
 
+      <!-- SEO Settings -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header"><span class="card-title">🔍 SEO সেটিংস</span></div>
+        <div class="card-body">
+          <div class="form-hint" style="margin-bottom:16px;padding:10px;background:#eff6ff;border-radius:6px;color:#1e40af;font-size:.8rem;">
+            এই ফিল্ডগুলো Google, Facebook ও অন্যান্য সার্চ ইঞ্জিনে আপনার দোকান কীভাবে দেখায় তা নিয়ন্ত্রণ করে। সঠিকভাবে পূরণ করলে সার্চ র‍্যাংকিং বাড়বে।
+          </div>
+
+          <div class="form-group">
+            <label>SEO টাইটেল <span class="req">*</span></label>
+            <input class="form-control seo-char-input" type="text" name="seo_title"
+                   value="{{ s.seo_title or '' }}" required
+                   maxlength="60" data-min="30" data-max="60"
+                   placeholder="যেমন: ShopNest — সেরা দামে অনলাইন শপিং বাংলাদেশ">
+            <div class="seo-char-bar"><span class="seo-char-count">0</span>/60</div>
+            <div class="form-hint">Google-এ আপনার হোমপেজের শিরোনাম। <strong>৩০-৬০ অক্ষর রাখুন।</strong> দোকানের নাম + মূল কীওয়ার্ড দিন।</div>
+          </div>
+
+          <div class="form-group">
+            <label>SEO বিবরণ (Meta Description) <span class="req">*</span></label>
+            <textarea class="form-control seo-char-input" name="seo_description" rows="3" required
+                      maxlength="160" data-min="120" data-max="160"
+                      placeholder="যেমন: ShopNest-এ পোশাক, গ্যাজেট, মুদি পণ্য সেরা দামে কিনুন। সারাদেশে দ্রুত ডেলিভারি ও নিরাপদ পেমেন্ট।">{{ s.seo_description or '' }}</textarea>
+            <div class="seo-char-bar"><span class="seo-char-count">0</span>/160</div>
+            <div class="form-hint">Google সার্চ রেজাল্টে টাইটেলের নিচে দেখায়। <strong>১২০-১৬০ অক্ষর রাখুন।</strong> কী পণ্য বিক্রি করেন ও কেন কিনবে — সেটা লিখুন।</div>
+          </div>
+
+          <div class="form-group">
+            <label>কীওয়ার্ড</label>
+            <input class="form-control" type="text" name="seo_keywords"
+                   value="{{ s.seo_keywords or '' }}"
+                   placeholder="যেমন: অনলাইন শপিং, বাংলাদেশ, পোশাক, গ্যাজেট, মুদি পণ্য">
+            <div class="form-hint">কমা দিয়ে আলাদা করুন। আপনার দোকানের মূল পণ্য/সেবার নাম দিন।</div>
+          </div>
+
+          <div class="form-group">
+            <label>পণ্যের টাইটেল সাফিক্স <span class="req">*</span></label>
+            <input class="form-control seo-char-input" type="text" name="seo_product_suffix"
+                   value="{{ s.seo_product_suffix or '' }}" required
+                   maxlength="30" data-min="5" data-max="30"
+                   placeholder="যেমন: সেরা দামে কিনুন">
+            <div class="seo-char-bar"><span class="seo-char-count">0</span>/30</div>
+            <div class="form-hint">প্রতিটি পণ্যের টাইটেলের শেষে যোগ হবে। যেমন: <em>"বাসমতি চাল — ShopNest | <strong>সেরা দামে কিনুন</strong>"</em></div>
+          </div>
+
+          <div class="form-group">
+            <label>ক্যাটাগরি টাইটেল সাফিক্স <span class="req">*</span></label>
+            <input class="form-control seo-char-input" type="text" name="seo_category_suffix"
+                   value="{{ s.seo_category_suffix or '' }}" required
+                   maxlength="30" data-min="5" data-max="30"
+                   placeholder="যেমন: সেরা দামে কিনুন">
+            <div class="seo-char-bar"><span class="seo-char-count">0</span>/30</div>
+            <div class="form-hint">প্রতিটি ক্যাটাগরি পেজের টাইটেলের শেষে যোগ হবে। যেমন: <em>"পোশাক — ShopNest | <strong>সেরা দামে কিনুন</strong>"</em></div>
+          </div>
+
+          <div class="form-group">
+            <label>ইমেজ Alt সাফিক্স</label>
+            <input class="form-control" type="text" name="seo_alt_suffix"
+                   value="{{ s.seo_alt_suffix or '' }}"
+                   maxlength="30"
+                   placeholder="যেমন: সেরা দামে কিনুন">
+            <div class="form-hint">পণ্যের ছবির alt টেক্সটের শেষে যোগ হবে। Google Image Search-এ সাহায্য করে।</div>
+          </div>
+
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header"><span class="card-title">যোগাযোগ ও পেমেন্ট</span></div>
         <div class="card-body">
@@ -198,5 +265,28 @@
 
   </div>
 </form>
+
+<style>
+.seo-char-bar{font-size:.75rem;color:var(--admin-muted);margin-top:4px;text-align:right;}
+.seo-char-bar.warn{color:#d97706;}
+.seo-char-bar.good{color:#16a34a;}
+.seo-char-bar.over{color:#dc2626;font-weight:600;}
+</style>
+<script>
+document.querySelectorAll('.seo-char-input').forEach(el => {
+  const bar = el.parentElement.querySelector('.seo-char-bar');
+  if (!bar) return;
+  const countEl = bar.querySelector('.seo-char-count');
+  const max = parseInt(el.dataset.max) || parseInt(el.maxLength) || 999;
+  const min = parseInt(el.dataset.min) || 0;
+  function update() {
+    const len = el.value.length;
+    countEl.textContent = len;
+    bar.className = 'seo-char-bar ' + (len > max ? 'over' : len >= min ? 'good' : 'warn');
+  }
+  el.addEventListener('input', update);
+  update();
+});
+</script>
 
 {% endblock %}

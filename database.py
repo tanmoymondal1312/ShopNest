@@ -105,6 +105,13 @@ async def init_db():
             ("social_youtube",   ""),
             ("social_twitter",   ""),
             ("social_tiktok",    ""),
+            # SEO
+            ("seo_title",           ""),
+            ("seo_description",     ""),
+            ("seo_keywords",        ""),
+            ("seo_product_suffix",  ""),
+            ("seo_category_suffix", ""),
+            ("seo_alt_suffix",      ""),
         ]
         for key, value in defaults:
             await db.execute(

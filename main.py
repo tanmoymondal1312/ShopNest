@@ -838,6 +838,12 @@ async def admin_settings_save(
     social_youtube:   str = Form(""),
     social_twitter:   str = Form(""),
     social_tiktok:    str = Form(""),
+    seo_title:           str = Form(""),
+    seo_description:     str = Form(""),
+    seo_keywords:        str = Form(""),
+    seo_product_suffix:  str = Form(""),
+    seo_category_suffix: str = Form(""),
+    seo_alt_suffix:      str = Form(""),
     logo:         UploadFile = File(None),
     social_image: UploadFile = File(None),
     admin: str = Depends(require_admin),
@@ -856,6 +862,12 @@ async def admin_settings_save(
             "social_youtube":   social_youtube.strip(),
             "social_twitter":   social_twitter.strip(),
             "social_tiktok":    social_tiktok.strip(),
+            "seo_title":           seo_title.strip(),
+            "seo_description":     seo_description.strip(),
+            "seo_keywords":        seo_keywords.strip(),
+            "seo_product_suffix":  seo_product_suffix.strip(),
+            "seo_category_suffix": seo_category_suffix.strip(),
+            "seo_alt_suffix":      seo_alt_suffix.strip(),
         }
         if logo and logo.filename:
             from PIL import Image

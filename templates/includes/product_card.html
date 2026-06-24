@@ -2,7 +2,7 @@
   <a href="/product/{{ product.slug }}">
     <div class="product-card-img-wrap">
       {% if product.image %}
-      <img src="/static/uploads/products/{{ product.image.replace('.webp', '_thumb.webp') }}" alt="{{ product.name }} — সেরা দামে কিনুন"
+      <img src="/static/uploads/products/{{ product.image.replace('.webp', '_thumb.webp') }}" alt="{{ product.name }}{% if settings.seo_alt_suffix %} — {{ settings.seo_alt_suffix }}{% endif %}"
            width="400" height="400" loading="lazy" decoding="async">
       {% else %}
       <div class="product-card-placeholder">📦</div>

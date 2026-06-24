@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ product.name }} — {{ settings.store_name }} | সেরা দামে কিনুন{% endblock %}
+{% block title %}{{ product.name }} — {{ settings.store_name }}{% if settings.seo_product_suffix %} | {{ settings.seo_product_suffix }}{% endif %}{% endblock %}
 {% block meta_desc %}{{ product.description[:155] if product.description else (product.name ~ " — " ~ settings.store_name ~ " এ পাওয়া যাচ্ছে।") }}{% endblock %}
 {% block og_type %}product{% endblock %}
 {% block og_title %}{{ product.name }} — {{ settings.store_name }}{% endblock %}
