@@ -714,7 +714,7 @@ input, select, textarea { font-family: var(--font); }
 .section { padding: 40px 0; }
 .section-title {
   font-size: 1.3rem;
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 24px;
   color: var(--text);
   display: flex;
