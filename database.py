@@ -88,14 +88,6 @@ async def init_db():
             key   TEXT PRIMARY KEY,
             value TEXT
         );
-
-        CREATE TABLE IF NOT EXISTS hero_products (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
-            sort_order INTEGER DEFAULT 0,
-            is_active  INTEGER DEFAULT 1
-        );
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_hero_product ON hero_products(product_id);
         """)
 
         defaults = [
@@ -468,59 +460,3 @@ async def save_settings(db, updates: dict):
         )
     await db.commit()
     invalidate_settings_cache()
-
-
-# ─── Hero Products ────────────────────────────────────────────────────────────
-
-async def fetch_hero_products(db) -> list:
-    cursor = await db.execute(
-        """SELECT h.id, h.product_id, h.sort_order, h.is_active,
-                  p.name, p.slug, p.image, p.price, p.old_price, p.stock
-           FROM hero_products h
-           JOIN products p ON p.id = h.product_id
-           WHERE h.is_active = 1 AND p.is_active = 1
-           ORDER BY h.sort_order ASC"""
-    )
-    return await cursor.fetchall()
-
-
-async def fetch_all_hero_rows(db) -> list:
-    cursor = await db.execute(
-        """SELECT h.id, h.product_id, h.sort_order, h.is_active,
-                  p.name, p.slug, p.image, p.price, p.old_price, p.stock
-           FROM hero_products h
-           JOIN products p ON p.id = h.product_id
-           ORDER BY h.sort_order ASC"""
-    )
-    return await cursor.fetchall()
-
-
-async def add_hero_product(db, product_id: int):
-    cursor = await db.execute("SELECT COALESCE(MAX(sort_order), 0) FROM hero_products")
-    row = await cursor.fetchone()
-    next_order = row[0] + 1
-    await db.execute(
-        "INSERT OR IGNORE INTO hero_products (product_id, sort_order) VALUES (?, ?)",
-        (product_id, next_order),
-    )
-    await db.commit()
-
-
-async def remove_hero_product(db, hero_id: int):
-    await db.execute("DELETE FROM hero_products WHERE id = ?", (hero_id,))
-    await db.commit()
-
-
-async def toggle_hero_active(db, hero_id: int):
-    await db.execute(
-        "UPDATE hero_products SET is_active = 1 - is_active WHERE id = ?", (hero_id,)
-    )
-    await db.commit()
-
-
-async def save_hero_order(db, ordered_ids: list):
-    for i, hero_id in enumerate(ordered_ids):
-        await db.execute(
-            "UPDATE hero_products SET sort_order = ? WHERE id = ?", (i, hero_id)
-        )
-    await db.commit()
