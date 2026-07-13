@@ -120,7 +120,7 @@
               <p style="font-size:.75rem;">লোগো (200×100 px)</p>
               <div class="uz-preview" style="display:{% if s.logo %}block{% else %}none{% endif %};">
                 <img class="uz-preview-img uz-preview-logo"
-                     src="{% if s.logo %}/static/{{ s.logo }}{% endif %}" alt="">
+                     src="{% if s.logo %}/static/{{ s.logo }}?v={{ file_mtime('static/' + s.logo) }}{% endif %}" alt="">
               </div>
             </div>
           </div>
@@ -134,7 +134,7 @@
               <p style="font-size:.75rem;"><strong>1200x630 px</strong></p>
               <div class="uz-preview" style="display:{% if s.social_image %}block{% else %}none{% endif %};">
                 <img class="uz-preview-img uz-preview-banner"
-                     src="{% if s.social_image %}/static/{{ s.social_image }}{% endif %}" alt="">
+                     src="{% if s.social_image %}/static/{{ s.social_image }}?v={{ file_mtime('static/' + s.social_image) }}{% endif %}" alt="">
               </div>
             </div>
           </div>

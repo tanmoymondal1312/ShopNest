@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Admin{% endblock %} — {{ settings.store_name }}</title>
   {% if settings.logo %}
-  <link rel="icon" type="image/webp" href="/static/{{ settings.logo }}">
+  <link rel="icon" type="image/webp" href="/static/{{ settings.logo }}?v={{ file_mtime('static/' + settings.logo) }}">
   {% else %}
   <link rel="icon" href="/static/favicon/favicon.ico">
   {% endif %}
@@ -26,7 +26,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       {% if settings.logo %}
-      <img src="/static/{{ settings.logo }}" alt="{{ settings.store_name }}" class="sidebar-logo-img">
+      <img src="/static/{{ settings.logo }}?v={{ file_mtime('static/' + settings.logo) }}" alt="{{ settings.store_name }}" class="sidebar-logo-img">
       {% else %}
       <div class="brand-dot">{{ settings.store_name[0] }}</div>
       {% endif %}

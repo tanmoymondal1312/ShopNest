@@ -28,8 +28,8 @@
 
   <!-- Favicons -->
   {% if settings.logo %}
-  <link rel="icon" type="image/webp" href="/static/{{ settings.logo }}">
-  <link rel="apple-touch-icon" href="/static/{{ settings.logo }}">
+  <link rel="icon" type="image/webp" href="/static/{{ settings.logo }}?v={{ file_mtime('static/' + settings.logo) }}">
+  <link rel="apple-touch-icon" href="/static/{{ settings.logo }}?v={{ file_mtime('static/' + settings.logo) }}">
   {% else %}
   <link rel="icon" href="/static/favicon/favicon.ico">
   <link rel="apple-touch-icon" href="/static/favicon/apple-touch-icon.png">
