@@ -2,7 +2,7 @@
 .ft-simple {
   border-top: 1px solid var(--border);
   margin-top: 48px;
-  background: #fff;
+  background: #fafafa;
 }
 /* Row 1: nav links + socials + whatsapp */
 .ft-row1 {
@@ -54,18 +54,46 @@
 .ft-wa-number {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: .78rem;
-  font-weight: 600;
+  gap: 8px;
   color: #15803d;
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
-  border-radius: 99px;
-  padding: 4px 11px;
-  transition: background .15s;
+  border-radius: 12px;
+  padding: 6px 13px 6px 9px;
+  transition: background .15s, box-shadow .15s;
   white-space: nowrap;
+  text-decoration: none;
 }
-.ft-wa-number:hover { background: #dcfce7; }
+.ft-wa-number:hover { background: #dcfce7; box-shadow: 0 2px 8px #bbf7d080; }
+.ft-wa-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px; height: 30px;
+  background: #22c55e;
+  border-radius: 8px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.ft-wa-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.2;
+}
+.ft-wa-label {
+  font-size: .68rem;
+  color: #16a34a;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.ft-wa-num {
+  font-size: .82rem;
+  font-weight: 700;
+  color: #15803d;
+  letter-spacing: .01em;
+}
 
 /* Divider */
 .ft-divider-line {
@@ -80,7 +108,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 10px 16px 14px;
+  padding: 12px 16px 18px;
 }
 .ft-simple-brand {
   font-size: .9rem;
@@ -89,9 +117,34 @@
   letter-spacing: -.02em;
   text-decoration: none;
 }
-.ft-simple-copy { font-size: .75rem; color: var(--text-muted); }
-.ft-mediaghor { color: var(--accent); font-weight: 600; transition: opacity .15s; }
-.ft-mediaghor:hover { opacity: .75; }
+.ft-simple-copy {
+  font-size: .75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ft-dot { opacity: .4; }
+.ft-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+.ft-heart {
+  color: #f43f5e;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.ft-mediaghor {
+  color: var(--accent);
+  font-weight: 700;
+  transition: color .15s;
+  text-decoration: none;
+}
+.ft-mediaghor:hover { color: var(--accent-dark, #5a52d5); }
 
 @media (max-width: 600px) {
   .ft-row1 { flex-direction: column; align-items: flex-start; gap: 10px; }
