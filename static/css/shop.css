@@ -1236,6 +1236,11 @@ input, select, textarea { font-family: var(--font); }
 }
 .btn-direct-order:hover  { background: var(--accent); color: #fff; }
 .btn-direct-order:active { transform: scale(.98); }
+.btn-wa-order {
+  border-color: #16a34a;
+  color: #16a34a;
+}
+.btn-wa-order:hover { background: #16a34a; color: #fff; }
 
 /* ── Order dialog ── */
 .order-dialog-overlay {
@@ -1523,15 +1528,20 @@ input, select, textarea { font-family: var(--font); }
 .btn-checkout {
   width: 100%;
   padding: 14px;
-  background: var(--accent);
+  background: #16a34a;
   color: #fff;
   border: none;
   border-radius: var(--radius);
   font-weight: 700;
   font-size: 1rem;
-  transition: background var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background .15s;
 }
-.btn-checkout:hover { background: var(--accent-dark); }
+.btn-checkout:hover { background: #15803d; }
 .cart-empty {
   text-align: center;
   padding: 48px 24px;
