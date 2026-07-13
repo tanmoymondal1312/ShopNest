@@ -134,7 +134,7 @@
 
       <!-- Contact / WhatsApp -->
       {% if settings.whatsapp %}
-      <a href="https://wa.me/{{ settings.whatsapp }}" class="navbar-wa-btn"
+      <a href="https://wa.me/{{ wa_full(settings.whatsapp_cc, settings.whatsapp) }}" class="navbar-wa-btn"
          target="_blank" rel="noopener" aria-label="যোগাযোগ করুন">
         <img src="/static/icons/phone.svg" alt="যোগাযোগ" class="navbar-wa-icon">
         <span class="navbar-wa-btn-text">যোগাযোগ</span>

@@ -103,6 +103,7 @@ async def init_db():
             ("tagline",          "Fresh products, fast delivery"),
             ("hero_tagline",     "আপনার পছন্দের পণ্য, সেরা দামে — সারাদেশে দ্রুত ডেলিভারি"),
             ("whatsapp",         ""),
+            ("whatsapp_cc",      "880"),
             ("currency_symbol",  "৳"),
             ("logo",             ""),
             ("accent_color",     "#6c63ff"),

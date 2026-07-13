@@ -155,6 +155,20 @@ def _static_url(path: str) -> str:
 templates.env.globals["static_url"] = _static_url
 
 
+def _wa_full(cc: str, num: str) -> str:
+    """Combine country code + local number into a digits-only wa.me number.
+    Safe against double-prefix if the stored number already includes the CC."""
+    cc_digits = (cc or "880").lstrip("+").strip()
+    num = (num or "").strip().lstrip("+")
+    if not num:
+        return ""
+    if num.startswith(cc_digits):
+        return num
+    return cc_digits + num.lstrip("0")
+
+templates.env.globals["wa_full"] = _wa_full
+
+
 @app.exception_handler(NotAuthenticated)
 async def not_authenticated_handler(request: Request, exc: NotAuthenticated):
     return RedirectResponse("/admin/login", status_code=302)
@@ -837,6 +851,7 @@ async def admin_settings_save(
     tagline: str = Form(""),
     hero_tagline: str = Form(""),
     whatsapp: str = Form(""),
+    whatsapp_cc: str = Form("880"),
     currency_symbol: str = Form("৳"),
     accent_color: str = Form("#6c63ff"),
     footer_text: str = Form(""),
@@ -878,7 +893,8 @@ async def admin_settings_save(
             "store_name":       store_name.strip(),
             "tagline":          tagline.strip(),
             "hero_tagline":     hero_tagline.strip(),
-            "whatsapp":         whatsapp.strip(),
+            "whatsapp":         whatsapp.strip().lstrip("+"),
+            "whatsapp_cc":      whatsapp_cc.strip().lstrip("+"),
             "currency_symbol":  currency_symbol.strip(),
             "accent_color":     accent_color.strip(),
             "footer_text":      footer_text.strip(),
