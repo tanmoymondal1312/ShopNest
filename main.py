@@ -29,6 +29,9 @@ from database import (
     insert_order, fetch_order, fetch_order_items,
     fetch_orders, count_orders, update_order_status,
     fetch_dashboard_stats, fetch_visitor_stats,
+    fetch_hero_products, fetch_all_hero_rows,
+    add_hero_product, remove_hero_product,
+    toggle_hero_active, save_hero_order,
 )
 from auth import (
     require_admin, get_admin_user, authenticate,
@@ -274,16 +277,20 @@ async def homepage(request: Request):
         # Only fetch the 8 featured — products grid loads via /api/products-grid after page paint
         featured   = await fetch_products(db, featured_only=True, limit=8)
 
-        # Slider: up to 7 (featured first, fill from regular if needed)
-        slider = list(featured[:7])
-        if len(slider) < 7:
-            fids  = {p["id"] for p in slider}
-            extra = await fetch_products(db, limit=10)
-            for p in extra:
-                if p["id"] not in fids:
-                    slider.append(p)
-                if len(slider) == 7:
-                    break
+        # Slider: use manually selected hero products; fallback to featured if none set
+        hero_rows = await fetch_hero_products(db)
+        if hero_rows:
+            slider = list(hero_rows)
+        else:
+            slider = list(featured[:7])
+            if len(slider) < 7:
+                fids  = {p["id"] for p in slider}
+                extra = await fetch_products(db, limit=10)
+                for p in extra:
+                    if p["id"] not in fids:
+                        slider.append(p)
+                    if len(slider) == 7:
+                        break
 
         return templates.TemplateResponse(request, "shop/index.html", {
             **base,
@@ -913,3 +920,65 @@ async def admin_settings_save(
     response = RedirectResponse("/admin/settings", status_code=302)
     flash(response, "সেটিংস সংরক্ষণ করা হয়েছে!", "success")
     return response
+
+
+# ─── Admin Hero Slider ────────────────────────────────────────────────────────
+
+@app.get("/admin/hero-slider", response_class=HTMLResponse)
+async def admin_hero_slider(request: Request, admin: str = Depends(require_admin)):
+    async for db in get_db():
+        s = await get_settings(db)
+        hero_rows = await fetch_all_hero_rows(db)
+        hero_pids = {row["product_id"] for row in hero_rows}
+        all_products = await fetch_products(db, active_only=True, limit=500)
+        available = [p for p in all_products if p["id"] not in hero_pids]
+        return templates.TemplateResponse(request, "admin/hero_slider.html", {
+            **admin_ctx(request, s),
+            "hero_rows":  hero_rows,
+            "available":  available,
+        })
+
+
+@app.post("/admin/hero-slider/add")
+async def admin_hero_add(
+    request: Request,
+    product_id: int = Form(...),
+    admin: str = Depends(require_admin),
+):
+    async for db in get_db():
+        await add_hero_product(db, product_id)
+    response = RedirectResponse("/admin/hero-slider", status_code=302)
+    flash(response, "স্লাইডারে পণ্য যোগ হয়েছে!", "success")
+    return response
+
+
+@app.post("/admin/hero-slider/remove/{hero_id}")
+async def admin_hero_remove(
+    hero_id: int, request: Request, admin: str = Depends(require_admin)
+):
+    async for db in get_db():
+        await remove_hero_product(db, hero_id)
+    response = RedirectResponse("/admin/hero-slider", status_code=302)
+    flash(response, "পণ্য সরানো হয়েছে।", "info")
+    return response
+
+
+@app.post("/admin/hero-slider/toggle/{hero_id}")
+async def admin_hero_toggle(
+    hero_id: int, request: Request, admin: str = Depends(require_admin)
+):
+    async for db in get_db():
+        await toggle_hero_active(db, hero_id)
+    response = RedirectResponse("/admin/hero-slider", status_code=302)
+    flash(response, "স্ট্যাটাস পরিবর্তন হয়েছে।", "success")
+    return response
+
+
+@app.post("/admin/hero-slider/reorder")
+async def admin_hero_reorder(request: Request, admin: str = Depends(require_admin)):
+    body = await request.json()
+    ids = [int(i) for i in body.get("ids", [])]
+    if ids:
+        async for db in get_db():
+            await save_hero_order(db, ids)
+    return JSONResponse({"ok": True})

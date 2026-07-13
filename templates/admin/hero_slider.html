@@ -1,0 +1,285 @@
+{% extends "admin/base.html" %}
+{% block title %}হিরো স্লাইডার{% endblock %}
+{% block page_title %}হিরো স্লাইডার{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start;">
+
+  <!-- ══ Current slider items ═══════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <h3 style="margin:0;font-size:.95rem;font-weight:600;">স্লাইডারে যুক্ত পণ্য</h3>
+      <span style="font-size:.78rem;color:var(--admin-muted);white-space:nowrap;">
+        {{ hero_rows|length }} টি • ড্র্যাগ করে সাজান
+      </span>
+    </div>
+
+    {% if hero_rows %}
+    <div id="hero-list">
+      {% for row in hero_rows %}
+      <div class="hs-row {% if not row.is_active %}hs-row--off{% endif %}"
+           data-id="{{ row.id }}" draggable="true">
+
+        <span class="hs-handle" title="ড্র্যাগ করে সরান">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9"  cy="5"  r="1.2" fill="currentColor"/>
+            <circle cx="15" cy="5"  r="1.2" fill="currentColor"/>
+            <circle cx="9"  cy="12" r="1.2" fill="currentColor"/>
+            <circle cx="15" cy="12" r="1.2" fill="currentColor"/>
+            <circle cx="9"  cy="19" r="1.2" fill="currentColor"/>
+            <circle cx="15" cy="19" r="1.2" fill="currentColor"/>
+          </svg>
+        </span>
+
+        {% if row.image %}
+        <img src="/static/uploads/products/{{ row.image.replace('.webp','_thumb.webp') }}"
+             onerror="this.src='/static/uploads/products/{{ row.image }}'"
+             alt="{{ row.name }}" class="hs-thumb">
+        {% else %}
+        <div class="hs-thumb hs-thumb--empty">📦</div>
+        {% endif %}
+
+        <div class="hs-info">
+          <span class="hs-name">{{ row.name }}</span>
+          <span class="hs-price">{{ settings.currency_symbol }}{{ "%.0f"|format(row.price) }}</span>
+        </div>
+
+        <div class="hs-actions">
+          <form method="post" action="/admin/hero-slider/toggle/{{ row.id }}" style="display:inline;">
+            <button type="submit"
+                    class="btn-icon {% if row.is_active %}hs-btn-on{% else %}hs-btn-off{% endif %}"
+                    title="{% if row.is_active %}স্লাইডার থেকে লুকান{% else %}স্লাইডারে দেখান{% endif %}">
+              {% if row.is_active %}
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              {% else %}
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+              {% endif %}
+            </button>
+          </form>
+
+          <form method="post" action="/admin/hero-slider/remove/{{ row.id }}"
+                class="hs-delete-form" style="display:inline;">
+            <button type="submit" class="btn-icon danger" title="স্লাইডার থেকে বাদ দিন">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                <path d="M10 11v6M14 11v6"/>
+                <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+              </svg>
+            </button>
+          </form>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+    <div id="hs-save-status"
+         style="display:none;padding:8px 16px;font-size:.78rem;color:var(--admin-muted);">
+      ক্রম সংরক্ষণ হচ্ছে…
+    </div>
+
+    {% else %}
+    <div style="padding:52px 24px;text-align:center;color:var(--admin-muted);">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+           style="display:block;margin:0 auto 14px;opacity:.35;">
+        <rect x="2" y="6" width="20" height="12" rx="2"/>
+        <path d="M2 10h20M7 6v12M17 6v12"/>
+      </svg>
+      <p style="margin:0 0 6px;font-weight:600;font-size:.95rem;">স্লাইডার এখনো খালি</p>
+      <p style="margin:0;font-size:.83rem;">ডানদিক থেকে পণ্য বেছে যোগ করুন।</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══ Add product panel ══════════════════════════════════════════ -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+
+    <div class="card">
+      <div class="card-header">
+        <h3 style="margin:0;font-size:.95rem;font-weight:600;">পণ্য যোগ করুন</h3>
+      </div>
+      <div style="padding:14px 16px 16px;">
+        {% if available %}
+        <form method="post" action="/admin/hero-slider/add">
+          <div class="form-group" style="margin-bottom:10px;">
+            <label class="form-label" style="margin-bottom:6px;display:block;">
+              পণ্য বেছে নিন
+            </label>
+            <input type="text" id="hs-search"
+                   placeholder="নাম দিয়ে খুঁজুন…"
+                   class="form-input"
+                   style="margin-bottom:8px;"
+                   autocomplete="off">
+            <select name="product_id" id="hs-select"
+                    class="form-input"
+                    size="9"
+                    style="height:auto;overflow-y:auto;border-radius:8px;padding:4px 0;">
+              {% for p in available %}
+              <option value="{{ p.id }}" data-name="{{ p.name|lower }}">
+                {{ p.name }} — {{ settings.currency_symbol }}{{ "%.0f"|format(p.price) }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 style="vertical-align:middle;margin-right:5px;">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            স্লাইডারে যোগ করুন
+          </button>
+        </form>
+        {% else %}
+        <p style="color:var(--admin-muted);font-size:.85rem;text-align:center;padding:20px 0;margin:0;">
+          সব সক্রিয় পণ্য ইতিমধ্যে স্লাইডারে আছে।
+        </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div style="padding:14px 16px;background:var(--admin-sidebar-bg,#f3f4f6);border-radius:10px;font-size:.8rem;color:var(--admin-muted);line-height:1.7;">
+      <strong style="color:var(--admin-text,#111);display:block;margin-bottom:4px;">📌 কীভাবে কাজ করে</strong>
+      স্লাইডার খালি থাকলে বিশেষ পণ্য অটো দেখাবে।<br>
+      পণ্য যোগ করলে শুধু সেগুলোই স্লাইডারে থাকবে।<br>
+      চোখের আইকনে ক্লিক করে লুকানো/দেখানো যাবে।<br>
+      ড্র্যাগ করে যেকোনো ক্রমে সাজানো যাবে।
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  // ── search filter
+  const searchEl = document.getElementById('hs-search');
+  const selectEl = document.getElementById('hs-select');
+  if (searchEl && selectEl) {
+    searchEl.addEventListener('input', function () {
+      const q = this.value.toLowerCase();
+      Array.from(selectEl.options).forEach(opt => {
+        opt.hidden = q && !opt.dataset.name.includes(q);
+      });
+      const visible = Array.from(selectEl.options).find(o => !o.hidden);
+      if (visible && (!selectEl.value || selectEl.options[selectEl.selectedIndex]?.hidden)) {
+        selectEl.value = visible.value;
+      }
+    });
+  }
+
+  // ── drag-to-reorder
+  const list = document.getElementById('hero-list');
+  if (!list) return;
+
+  let dragging = null;
+
+  list.addEventListener('dragstart', e => {
+    dragging = e.target.closest('.hs-row');
+    if (dragging) { dragging.style.opacity = '0.35'; dragging.style.transition = 'none'; }
+  });
+
+  list.addEventListener('dragend', () => {
+    if (dragging) { dragging.style.opacity = ''; dragging.style.transition = ''; }
+    dragging = null;
+    saveOrder();
+  });
+
+  list.addEventListener('dragover', e => {
+    e.preventDefault();
+    const target = e.target.closest('.hs-row');
+    if (!target || target === dragging) return;
+    const mid = target.getBoundingClientRect().top + target.getBoundingClientRect().height / 2;
+    list.insertBefore(dragging, e.clientY > mid ? target.nextSibling : target);
+  });
+
+  function saveOrder() {
+    const ids = [...list.querySelectorAll('.hs-row')].map(r => r.dataset.id);
+    const status = document.getElementById('hs-save-status');
+    if (status) status.style.display = 'block';
+    fetch('/admin/hero-slider/reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids }),
+    }).finally(() => {
+      if (status) setTimeout(() => { status.style.display = 'none'; }, 1500);
+    });
+  }
+
+  // ── confirm before remove
+  document.querySelectorAll('.hs-delete-form').forEach(f => {
+    f.addEventListener('submit', e => {
+      if (!confirm('এই পণ্যটি স্লাইডার থেকে বাদ দেবো?')) e.preventDefault();
+    });
+  });
+})();
+</script>
+
+<style>
+.hs-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--admin-border, #e5e7eb);
+  transition: background .12s;
+}
+.hs-row:last-child { border-bottom: none; }
+.hs-row:hover { background: var(--admin-sidebar-bg, #f8f9fa); }
+.hs-row--off { opacity: .42; }
+
+.hs-handle {
+  cursor: grab;
+  color: var(--admin-muted);
+  flex-shrink: 0;
+  padding: 2px;
+}
+.hs-handle:active { cursor: grabbing; }
+
+.hs-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: var(--admin-border, #e5e7eb);
+}
+.hs-thumb--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.hs-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hs-name {
+  font-weight: 600;
+  font-size: .88rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hs-price {
+  font-size: .78rem;
+  color: var(--admin-accent, #6c63ff);
+  font-weight: 500;
+}
+
+.hs-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.hs-btn-on  { color: #16a34a; }
+.hs-btn-off { color: #9ca3af; }
+</style>
+{% endblock %}
