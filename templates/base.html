@@ -53,6 +53,7 @@
   }</style>
 
   <!-- Alpine.js (deferred) -->
+  <script defer src="{{ static_url('js/shop.js') }}"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
 
   <script>
@@ -64,7 +65,7 @@
     {% endif %}
   </script>
 </head>
-<body x-data="{}"
+<body x-data="{}">
   {% include "includes/navbar.html" %}
 
   {% block content %}{% endblock %}
@@ -214,7 +215,6 @@
   </script>
   {% block schema %}{% endblock %}
 
-  <script defer src="{{ static_url('js/shop.js') }}"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>
