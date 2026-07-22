@@ -9,9 +9,12 @@ document.addEventListener('alpine:init', () => {
       try {
         const saved = localStorage.getItem('shopnest_cart');
         if (saved) {
-          // Backfill `key` on carts saved before sizes existed
+          // Backfill fields added after a cart may have been saved
           this.items = JSON.parse(saved).map(i => ({
-            ...i, key: i.key || this.lineKey(i.id, i.size),
+            ...i,
+            key:   i.key || this.lineKey(i.id, i.size),
+            size:  i.size || '',
+            sizes: i.sizes || [],
           }));
         }
       } catch (e) {
@@ -42,7 +45,13 @@ document.addEventListener('alpine:init', () => {
       if (existing) {
         existing.qty++;
       } else {
-        this.items.push({ ...product, size: product.size || '', key, qty: 1 });
+        this.items.push({
+          ...product,
+          size:  product.size || '',
+          sizes: product.sizes || [],   // options offered in the checkout dialog
+          key,
+          qty: 1,
+        });
       }
       this.save();
       this.open = true;
@@ -59,6 +68,24 @@ document.addEventListener('alpine:init', () => {
       if (!item) return;
       qty = Math.max(1, parseInt(qty) || 1);
       item.qty = qty;
+      this.save();
+    },
+
+    /** Switch a line to another size, merging if that size is already in the cart. */
+    setSize(key, size) {
+      const item = this.items.find(i => i.key === key);
+      if (!item || item.size === size) return;
+
+      const newKey = this.lineKey(item.id, size);
+      const twin = this.items.find(i => i.key === newKey);
+
+      if (twin) {
+        twin.qty += item.qty;
+        this.items = this.items.filter(i => i.key !== key);
+      } else {
+        item.size = size;
+        item.key = newKey;
+      }
       this.save();
     },
 
@@ -104,9 +131,13 @@ document.addEventListener('alpine:init', () => {
 });
 
 // ── Checkout form submission ───────────────────────────────────────────────────
-window.submitOrder = async function (formEl, btnEl) {
+// Resolves to { ok, orderId } or { ok: false, error } — the dialog renders the
+// outcome itself rather than navigating away.
+window.submitOrder = async function (formEl) {
   const cart = Alpine.store('cart');
-  if (cart.items.length === 0) return;
+  if (cart.items.length === 0) {
+    return { ok: false, error: 'আপনার কার্ট খালি।' };
+  }
 
   const name    = formEl.querySelector('[name="name"]').value.trim();
   const phone   = formEl.querySelector('[name="phone"]').value.trim();
@@ -114,12 +145,13 @@ window.submitOrder = async function (formEl, btnEl) {
   const note    = formEl.querySelector('[name="note"]').value.trim();
 
   if (!name || !phone) {
-    alert('নাম ও ফোন নম্বর আবশ্যক।');
-    return;
+    return { ok: false, error: 'নাম ও মোবাইল নম্বর আবশ্যক।' };
   }
 
-  btnEl.disabled = true;
-  btnEl.textContent = 'অপেক্ষা করুন…';
+  const summary = {
+    items: cart.items.map(i => ({ ...i })),
+    total: cart.total,
+  };
 
   try {
     const res = await fetch('/order', {
@@ -144,12 +176,9 @@ window.submitOrder = async function (formEl, btnEl) {
     if (!res.ok) throw new Error(data.error || 'অর্ডার দেওয়া সম্ভব হয়নি।');
 
     cart.clearCart();
-    cart.closeCheckout();
-    window.location.href = `/order/${data.order_id}/confirm`;
+    return { ok: true, orderId: data.order_id, ...summary };
   } catch (err) {
-    alert(err.message);
-    btnEl.disabled = false;
-    btnEl.textContent = 'অর্ডার দিন';
+    return { ok: false, error: err.message };
   }
 };
 

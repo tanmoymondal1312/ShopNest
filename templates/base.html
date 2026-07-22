@@ -152,37 +152,160 @@
        x-transition:leave="transition ease-in duration-150"
        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
        style="display:none;">
-    <div class="checkout-modal" @click.stop x-data="{ submitting: false }">
-      <h2>📦 অর্ডারের বিবরণ</h2>
-      <form id="checkout-form" @submit.prevent="
-        submitting = true;
-        submitOrder($el, $el.querySelector('[type=submit]'))
-          .finally(() => submitting = false)
-      ">
-        <div class="form-group">
-          <label>আপনার নাম <span style="color:#ef4444">*</span></label>
-          <input type="text" name="name" placeholder="আপনার পুরো নাম লিখুন" required>
-        </div>
-        <div class="form-group">
-          <label>মোবাইল নম্বর <span style="color:#ef4444">*</span></label>
-          <input type="tel" name="phone" placeholder="01XXXXXXXXX" required>
-        </div>
-        <div class="form-group">
-          <label>ডেলিভারি ঠিকানা</label>
-          <textarea name="address" placeholder="পূর্ণ ঠিকানা (বাড়ি, গ্রাম/এলাকা, জেলা)"></textarea>
-        </div>
-        <div class="form-group">
-          <label>বিশেষ নির্দেশনা (ঐচ্ছিক)</label>
-          <input type="text" name="note" placeholder="রঙ, সাইজ বা বিশেষ কিছু থাকলে লিখুন">
-        </div>
-        <div class="checkout-actions">
-          <button type="button" class="btn-cancel" @click="$store.cart.closeCheckout()">বাতিল</button>
-          <button type="submit" class="btn-submit-order" :disabled="submitting">
-            <span x-show="!submitting">অর্ডার দিন</span>
-            <span x-show="submitting">অপেক্ষা করুন…</span>
+    <div class="checkout-modal" @click.stop
+         x-data="{
+           submitting: false,
+           placed: false,
+           orderId: '',
+           placedItems: [],
+           placedTotal: 0,
+           error: '',
+           async send(form) {
+             this.error = '';
+             this.submitting = true;
+             const res = await submitOrder(form);
+             this.submitting = false;
+             if (res.ok) {
+               this.orderId = res.orderId;
+               this.placedItems = res.items;
+               this.placedTotal = res.total;
+               this.placed = true;
+             } else {
+               this.error = res.error;
+             }
+           },
+           done() {
+             $store.cart.closeCheckout();
+             this.placed = false;
+             this.orderId = '';
+             this.error = '';
+           }
+         }">
+
+      <!-- ── Success state ─────────────────────────────────────────── -->
+      <template x-if="placed">
+        <div class="co-success">
+          <div class="co-success-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <h2>অর্ডার সফল হয়েছে!</h2>
+          <p class="co-success-sub">আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।</p>
+
+          <div class="co-order-id">
+            <span>অর্ডার নম্বর</span>
+            <strong x-text="'#' + orderId"></strong>
+          </div>
+
+          <div class="co-success-items">
+            <template x-for="item in placedItems" :key="item.key">
+              <div class="co-success-row">
+                <span x-text="item.name + (item.size ? ' · ' + item.size : '') + ' × ' + item.qty"></span>
+                <span x-text="window.CURRENCY + (item.price * item.qty).toFixed(0)"></span>
+              </div>
+            </template>
+            <div class="co-success-row co-success-total">
+              <span>মোট</span>
+              <span x-text="window.CURRENCY + placedTotal.toFixed(0)"></span>
+            </div>
+          </div>
+
+          <button type="button" class="btn-submit-order" style="width:100%;" @click="done()">
+            ঠিক আছে
           </button>
         </div>
-      </form>
+      </template>
+
+      <!-- ── Order form ────────────────────────────────────────────── -->
+      <template x-if="!placed">
+        <div>
+          <div class="co-head">
+            <h2>অর্ডার নিশ্চিত করুন</h2>
+            <button type="button" class="co-close" @click="$store.cart.closeCheckout()"
+                    aria-label="বন্ধ করুন">&times;</button>
+          </div>
+
+          <!-- Editable order review -->
+          <div class="co-review">
+            <template x-for="item in $store.cart.items" :key="item.key">
+              <div class="co-item">
+                <img class="co-item-img"
+                     :src="item.image ? '/static/uploads/products/' + item.image : '/static/favicon/favicon.svg'"
+                     :alt="item.name">
+
+                <div class="co-item-main">
+                  <div class="co-item-top">
+                    <span class="co-item-name" x-text="item.name"></span>
+                    <button type="button" class="co-item-del"
+                            @click="$store.cart.removeItem(item.key)" aria-label="সরান">&times;</button>
+                  </div>
+
+                  <div class="co-item-controls">
+                    <select class="co-size" x-show="item.sizes && item.sizes.length" x-cloak
+                            @change="$store.cart.setSize(item.key, $event.target.value)">
+                      <template x-for="s in item.sizes" :key="s">
+                        <option :value="s" :selected="s === item.size" x-text="s"></option>
+                      </template>
+                    </select>
+
+                    <div class="co-qty">
+                      <button type="button" @click="$store.cart.updateQty(item.key, item.qty - 1)"
+                              :disabled="item.qty <= 1">−</button>
+                      <span x-text="item.qty"></span>
+                      <button type="button" @click="$store.cart.updateQty(item.key, item.qty + 1)">+</button>
+                    </div>
+
+                    <span class="co-item-price"
+                          x-text="window.CURRENCY + (item.price * item.qty).toFixed(0)"></span>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <div class="co-empty" x-show="$store.cart.items.length === 0" x-cloak>
+              আপনার কার্ট খালি।
+            </div>
+          </div>
+
+          <div class="co-total" x-show="$store.cart.items.length > 0" x-cloak>
+            <span>সর্বমোট</span>
+            <strong x-text="window.CURRENCY + $store.cart.total.toFixed(0)"></strong>
+          </div>
+
+          <form @submit.prevent="send($el)">
+            <div class="co-fields">
+              <div class="form-group">
+                <label>আপনার নাম <span class="co-req">*</span></label>
+                <input type="text" name="name" placeholder="আপনার পুরো নাম লিখুন" required>
+              </div>
+              <div class="form-group">
+                <label>মোবাইল নম্বর <span class="co-req">*</span></label>
+                <input type="tel" name="phone" placeholder="01XXXXXXXXX" required>
+              </div>
+              <div class="form-group">
+                <label>ডেলিভারি ঠিকানা</label>
+                <textarea name="address" placeholder="পূর্ণ ঠিকানা (বাড়ি, গ্রাম/এলাকা, জেলা)"></textarea>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>বিশেষ নির্দেশনা <span class="co-opt">(ঐচ্ছিক)</span></label>
+                <input type="text" name="note" placeholder="রঙ বা বিশেষ কিছু থাকলে লিখুন">
+              </div>
+            </div>
+
+            <p class="co-error" x-show="error" x-cloak x-text="error"></p>
+
+            <div class="checkout-actions">
+              <button type="button" class="btn-cancel" @click="$store.cart.closeCheckout()">বাতিল</button>
+              <button type="submit" class="btn-submit-order"
+                      :disabled="submitting || $store.cart.items.length === 0">
+                <span x-show="!submitting">অর্ডার নিশ্চিত করুন</span>
+                <span x-show="submitting" x-cloak>অপেক্ষা করুন…</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </template>
     </div>
   </div>
 

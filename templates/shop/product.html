@@ -69,7 +69,7 @@ window.__sizes = {{ size_list(product.sizes) | tojson }};
            picked() {
              if (this.sizes.length && !this.size) { this.sizeError = true; return null; }
              this.sizeError = false;
-             return { ...window.__pd, size: this.size };
+             return { ...window.__pd, size: this.size, sizes: this.sizes };
            },
            addToCart() {
              const item = this.picked();
