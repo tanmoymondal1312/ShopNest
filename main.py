@@ -221,12 +221,37 @@ def _post_to_datahook(payload: dict) -> None:
         print(f"[datahook] order notification failed: {exc}")
 
 
-async def notify_datahook(order: dict, items: list) -> None:
-    """Send a placed order to the DataHook endpoint as its five attributes."""
+async def _order_image_url(db, base_url: str, items: list) -> str:
+    """Absolute image URL representing the order.
+
+    DataHook requires a real http(s) URL, so this falls back to the store logo
+    (and then the app icon) when no ordered product carries an image.
+    """
+    base = base_url.rstrip("/")
+
+    for item in items:
+        product_id = item.get("product_id")
+        if not product_id:
+            continue
+        product = await fetch_product_by_id(db, product_id)
+        if product and product["image"]:
+            return f"{base}/static/uploads/products/{product['image']}"
+
+    store = await get_settings(db)
+    if store.get("logo"):
+        return f"{base}/static/{store['logo']}"
+    return f"{base}/static/favicon/web-app-manifest-192x192.png"
+
+
+async def notify_datahook(order: dict, items: list, image_url: str) -> None:
+    """Send a placed order to the DataHook endpoint using its attribute keys."""
     if not (DATAHOOK_URL and DATAHOOK_KEY):
         return
 
     sizes = [item["size"] for item in items if item.get("size")]
+    # dict.fromkeys de-duplicates while preserving order — the same product in
+    # two sizes should name itself once.
+    names = list(dict.fromkeys(item["product_name"] for item in items))
     lines = [
         f"• {item['product_name']}"
         + (f" ({item['size']})" if item.get("size") else "")
@@ -240,11 +265,13 @@ async def notify_datahook(order: dict, items: list) -> None:
         comment += f"\nনোট: {order['note']}"
 
     await asyncio.to_thread(_post_to_datahook, {
-        "name":    order["customer_name"],
-        "phone":   order["customer_phone"],
-        "adress":  order["address"] or "—",
-        "size":    ", ".join(sizes) if sizes else "—",
-        "comment": comment,
+        "customer_name": order["customer_name"],
+        "phone":         order["customer_phone"],
+        "adress":        order["address"] or "—",
+        "size":          ", ".join(sizes) if sizes else "—",
+        "comment":       comment,
+        "image":         image_url,
+        "product_name":  ", ".join(names),
     })
 
 
@@ -539,7 +566,10 @@ async def create_order(request: Request, background_tasks: BackgroundTasks):
         ]
 
         await insert_order(db, order, order_items)
-        background_tasks.add_task(notify_datahook, order, order_items)
+        # Resolved here while the db session is open; the notification itself
+        # runs after the response so checkout never waits on DataHook.
+        image_url = await _order_image_url(db, str(request.base_url), order_items)
+        background_tasks.add_task(notify_datahook, order, order_items, image_url)
         return JSONResponse({"order_id": order_id})
 
 
