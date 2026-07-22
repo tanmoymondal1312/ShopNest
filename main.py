@@ -1,7 +1,10 @@
 import os
 import uuid
 import hashlib
+import json
 import math
+import asyncio
+import urllib.request
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -11,7 +14,7 @@ load_dotenv()
 
 from fastapi import (
     FastAPI, Request, Form, File, UploadFile,
-    Depends, HTTPException,
+    Depends, HTTPException, BackgroundTasks,
 )
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -186,6 +189,63 @@ def _size_list(raw: str) -> list:
 
 
 templates.env.globals["size_list"] = _size_list
+
+
+# ── DataHook order notification ───────────────────────────────────────────────
+# Configured per deployment via .env; unset means the notification is skipped.
+DATAHOOK_URL = os.getenv("DATAHOOK_URL", "").strip()
+DATAHOOK_KEY = os.getenv("DATAHOOK_KEY", "").strip()
+
+
+def _post_to_datahook(payload: dict) -> None:
+    """Blocking POST — always called off the event loop, never raises.
+
+    A placed order must stand on its own, so a DataHook outage is logged
+    and swallowed rather than surfaced to the customer.
+    """
+    try:
+        request = urllib.request.Request(
+            DATAHOOK_URL,
+            data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "X-API-Key": DATAHOOK_KEY,
+                # Cloudflare blocks the default "Python-urllib/x.y" agent with a 403
+                "User-Agent": "ShopNest/1.0 (+order-notification)",
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=8) as response:
+            response.read()
+    except Exception as exc:  # noqa: BLE001 — notification must never break checkout
+        print(f"[datahook] order notification failed: {exc}")
+
+
+async def notify_datahook(order: dict, items: list) -> None:
+    """Send a placed order to the DataHook endpoint as its five attributes."""
+    if not (DATAHOOK_URL and DATAHOOK_KEY):
+        return
+
+    sizes = [item["size"] for item in items if item.get("size")]
+    lines = [
+        f"• {item['product_name']}"
+        + (f" ({item['size']})" if item.get("size") else "")
+        + f" × {item['quantity']} — {item['price'] * item['quantity']:.0f}"
+        for item in items
+    ]
+
+    comment = f"অর্ডার #{order['id']}\n" + "\n".join(lines)
+    comment += f"\nমোট: {order['total']:.0f}"
+    if order.get("note"):
+        comment += f"\nনোট: {order['note']}"
+
+    await asyncio.to_thread(_post_to_datahook, {
+        "name":    order["customer_name"],
+        "phone":   order["customer_phone"],
+        "adress":  order["address"] or "—",
+        "size":    ", ".join(sizes) if sizes else "—",
+        "comment": comment,
+    })
 
 
 @app.exception_handler(NotAuthenticated)
@@ -437,7 +497,7 @@ async def search_page(request: Request, q: str = "", page: int = 1):
 
 
 @app.post("/order")
-async def create_order(request: Request):
+async def create_order(request: Request, background_tasks: BackgroundTasks):
     async for db in get_db():
         try:
             body = await request.json()
@@ -479,6 +539,7 @@ async def create_order(request: Request):
         ]
 
         await insert_order(db, order, order_items)
+        background_tasks.add_task(notify_datahook, order, order_items)
         return JSONResponse({"order_id": order_id})
 
 
