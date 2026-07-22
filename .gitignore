@@ -1,6 +1,12 @@
 # Environment & secrets
 .env
 
+# Database — each deployment keeps its own live data, never sync it via git
+shop.db
+shop.db-wal
+shop.db-shm
+*.db.backup
+
 # Python cache
 __pycache__/
 *.py[cod]
