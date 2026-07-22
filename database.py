@@ -39,6 +39,7 @@ async def init_db():
             stock       INTEGER DEFAULT 0,
             category_id INTEGER REFERENCES categories(id),
             image       TEXT,
+            sizes       TEXT DEFAULT '',
             is_active   INTEGER DEFAULT 1,
             is_featured INTEGER DEFAULT 0,
             created_at  TEXT DEFAULT (datetime('now'))
@@ -69,7 +70,8 @@ async def init_db():
             product_id   INTEGER REFERENCES products(id),
             product_name TEXT NOT NULL,
             price        REAL NOT NULL,
-            quantity     INTEGER NOT NULL
+            quantity     INTEGER NOT NULL,
+            size         TEXT DEFAULT ''
         );
 
         CREATE TABLE IF NOT EXISTS visitors (
@@ -97,6 +99,16 @@ async def init_db():
         );
         CREATE UNIQUE INDEX IF NOT EXISTS idx_hero_product ON hero_products(product_id);
         """)
+
+        # ── Migrations for databases created before a column existed ──
+        for table, column, ddl in (
+            ("products",    "sizes", "TEXT DEFAULT ''"),
+            ("order_items", "size",  "TEXT DEFAULT ''"),
+        ):
+            cursor = await db.execute(f"PRAGMA table_info({table})")
+            existing = {row[1] for row in await cursor.fetchall()}
+            if column not in existing:
+                await db.execute(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}")
 
         defaults = [
             ("store_name",       "ShopNest"),
@@ -259,9 +271,9 @@ async def insert_product(db, data: dict) -> int:
     cursor = await db.execute(
         """INSERT INTO products
            (name, slug, description, price, old_price, stock, category_id,
-            image, is_active, is_featured)
+            image, sizes, is_active, is_featured)
            VALUES (:name, :slug, :description, :price, :old_price, :stock,
-                   :category_id, :image, :is_active, :is_featured)""",
+                   :category_id, :image, :sizes, :is_active, :is_featured)""",
         data,
     )
     await db.commit()
@@ -274,7 +286,7 @@ async def update_product(db, product_id: int, data: dict):
         """UPDATE products SET
            name=:name, slug=:slug, description=:description, price=:price,
            old_price=:old_price, stock=:stock, category_id=:category_id,
-           image=:image, is_active=:is_active, is_featured=:is_featured
+           image=:image, sizes=:sizes, is_active=:is_active, is_featured=:is_featured
            WHERE id=:id""",
         data,
     )
@@ -306,8 +318,8 @@ async def insert_order(db, order: dict, items: list) -> str:
     )
     for item in items:
         await db.execute(
-            """INSERT INTO order_items (order_id, product_id, product_name, price, quantity)
-               VALUES (:order_id, :product_id, :product_name, :price, :quantity)""",
+            """INSERT INTO order_items (order_id, product_id, product_name, price, quantity, size)
+               VALUES (:order_id, :product_id, :product_name, :price, :quantity, :size)""",
             item,
         )
     await db.commit()

@@ -42,8 +42,8 @@
       {% if chart %}
       <div id="visitors-chart-container" class="bar-chart" style="height:120px;"></div>
       <div id="visitors-chart" style="display:none;"
-           data-values="{{ chart|map(attribute='cnt')|list|tojson }}"
-           data-labels="{{ chart|map(attribute='day')|list|tojson }}"></div>
+           data-values='{{ chart|map(attribute="cnt")|list|tojson }}'
+           data-labels='{{ chart|map(attribute="day")|list|tojson }}'></div>
       {% else %}
       <p style="color:var(--admin-muted);font-size:.85rem;">এই সময়ে কোনো ভিজিটর নেই।</p>
       {% endif %}

@@ -29,7 +29,7 @@
     <div class="order-items-list">
       {% for item in items %}
       <div class="order-item-row">
-        <span>{{ item.product_name }} × {{ item.quantity }}</span>
+        <span>{{ item.product_name }}{% if item.size %} ({{ item.size }}){% endif %} × {{ item.quantity }}</span>
         <span>{{ settings.currency_symbol }}{{ "%.2f"|format(item.price * item.quantity) }}</span>
       </div>
       {% endfor %}
@@ -46,7 +46,7 @@
   {% set wa_msg = "নতুন অর্ডার! 🛒\nঅর্ডার ID: #" + order.id + "\nনাম: " + order.customer_name + "\nফোন: " + order.customer_phone %}
   {% if order.address %}{% set wa_msg = wa_msg + "\nঠিকানা: " + order.address %}{% endif %}
   {% set wa_msg = wa_msg + "\n\nপণ্য:" %}
-  {% for item in items %}{% set wa_msg = wa_msg + "\n• " + item.product_name + " x " + item.quantity|string + " — " + settings.currency_symbol + (item.price * item.quantity)|round(2)|string %}{% endfor %}
+  {% for item in items %}{% set wa_msg = wa_msg + "\n• " + item.product_name + (" (সাইজ: " + item.size + ")" if item.size else "") + " x " + item.quantity|string + " — " + settings.currency_symbol + (item.price * item.quantity)|round(2)|string %}{% endfor %}
   {% set wa_msg = wa_msg + "\n\nমোট: " + settings.currency_symbol + order.total|round(2)|string %}
 
   <a href="https://wa.me/{{ wa_full(settings.whatsapp_cc, settings.whatsapp) }}?text={{ wa_msg | urlencode }}"

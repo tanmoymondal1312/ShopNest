@@ -1,3 +1,6 @@
+/* Hide Alpine-controlled elements until Alpine initialises */
+[x-cloak] { display: none !important; }
+
 /* ── FOOTER (minimal two-row) ───────────────────────────────────────────────── */
 .ft-simple {
   border-top: 1px solid var(--border);
@@ -1019,6 +1022,15 @@ input, select, textarea { font-family: var(--font); }
 .btn-add-cart:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
 @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03); } }
 
+/* Anchor variant used when a product needs a size picked first */
+.btn-pick-size {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+.btn-pick-size:hover { background: var(--accent-dark); color: #fff; }
+
 /* ── FEATURED ROW ────────────────────────────────────────────────────────────── */
 .featured-scroll {
   display: grid;
@@ -1195,6 +1207,54 @@ input, select, textarea { font-family: var(--font); }
   background: var(--bg);
   outline: none;
 }
+
+/* ── Size selector ── */
+.size-selector { margin: 18px 0; }
+.size-selector > label {
+  display: block;
+  font-weight: 700;
+  font-size: .95rem;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.size-required { color: #ef4444; }
+
+.size-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.size-option {
+  min-width: 52px;
+  padding: 10px 16px;
+  background: #fff;
+  color: var(--text);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: .95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s, transform .1s;
+}
+.size-option:hover  { border-color: var(--accent); color: var(--accent); }
+.size-option:active { transform: scale(.96); }
+.size-option.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.size-selector.has-error .size-option { border-color: #fca5a5; }
+.size-error-msg {
+  color: #ef4444;
+  font-size: .85rem;
+  font-weight: 600;
+  margin: 8px 0 0;
+}
+
+.cart-item-size {
+  font-size: .8rem;
+  color: var(--text-muted);
+  margin: 2px 0 4px;
+}
+.cart-item-size strong { color: var(--text); }
 
 .btn-add-cart-lg {
   width: 100%;

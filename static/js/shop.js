@@ -8,10 +8,20 @@ document.addEventListener('alpine:init', () => {
     init() {
       try {
         const saved = localStorage.getItem('shopnest_cart');
-        if (saved) this.items = JSON.parse(saved);
+        if (saved) {
+          // Backfill `key` on carts saved before sizes existed
+          this.items = JSON.parse(saved).map(i => ({
+            ...i, key: i.key || this.lineKey(i.id, i.size),
+          }));
+        }
       } catch (e) {
         this.items = [];
       }
+    },
+
+    // Same product in two sizes must be two separate cart lines
+    lineKey(id, size) {
+      return id + '::' + (size || '');
     },
 
     save() {
@@ -27,24 +37,25 @@ document.addEventListener('alpine:init', () => {
     },
 
     addItem(product) {
-      const existing = this.items.find(i => i.id === product.id);
+      const key = this.lineKey(product.id, product.size);
+      const existing = this.items.find(i => i.key === key);
       if (existing) {
         existing.qty++;
       } else {
-        this.items.push({ ...product, qty: 1 });
+        this.items.push({ ...product, size: product.size || '', key, qty: 1 });
       }
       this.save();
       this.open = true;
       this._bounceBadge();
     },
 
-    removeItem(id) {
-      this.items = this.items.filter(i => i.id !== id);
+    removeItem(key) {
+      this.items = this.items.filter(i => i.key !== key);
       this.save();
     },
 
-    updateQty(id, qty) {
-      const item = this.items.find(i => i.id === id);
+    updateQty(key, qty) {
+      const item = this.items.find(i => i.key === key);
       if (!item) return;
       qty = Math.max(1, parseInt(qty) || 1);
       item.qty = qty;
@@ -124,6 +135,7 @@ window.submitOrder = async function (formEl, btnEl) {
           name: i.name,
           price: i.price,
           qty: i.qty,
+          size: i.size || '',
         })),
       }),
     });

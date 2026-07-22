@@ -30,6 +30,12 @@
       <span class="price-old">{{ settings.currency_symbol }}{{ "%.0f"|format(product.old_price) }}</span>
       {% endif %}
     </div>
+    {% if product.stock > 0 and size_list(product.sizes) %}
+    {# Sizes must be chosen on the product page — no blind quick-add #}
+    <a href="/product/{{ product.slug }}" class="btn-add-cart btn-pick-size">
+      সাইজ বেছে নিন
+    </a>
+    {% else %}
     <button class="btn-add-cart"
       {% if product.stock == 0 %}disabled{% endif %}
       @click="$store.cart.addItem({
@@ -41,5 +47,6 @@
       })">
       {% if product.stock == 0 %}স্টক নেই{% else %}কার্টে যোগ করুন{% endif %}
     </button>
+    {% endif %}
   </div>
 </div>

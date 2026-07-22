@@ -97,18 +97,21 @@
         </div>
       </template>
 
-      <template x-for="item in $store.cart.items" :key="item.id">
+      <template x-for="item in $store.cart.items" :key="item.key">
         <div class="cart-item">
           <img :src="item.image ? '/static/uploads/products/' + item.image : '/static/favicon/favicon.svg'"
                :alt="item.name" class="cart-item-img">
           <div class="cart-item-info">
             <div class="cart-item-name" x-text="item.name"></div>
+            <div class="cart-item-size" x-show="item.size" x-cloak>
+              সাইজ: <strong x-text="item.size"></strong>
+            </div>
             <div class="cart-item-price" x-text="window.CURRENCY + (item.price * item.qty).toFixed(2)"></div>
             <div class="cart-item-qty">
-              <button @click="$store.cart.updateQty(item.id, item.qty - 1)">−</button>
+              <button @click="$store.cart.updateQty(item.key, item.qty - 1)">−</button>
               <span x-text="item.qty"></span>
-              <button @click="$store.cart.updateQty(item.id, item.qty + 1)">+</button>
-              <button class="cart-item-remove" @click="$store.cart.removeItem(item.id)" title="সরান">✕</button>
+              <button @click="$store.cart.updateQty(item.key, item.qty + 1)">+</button>
+              <button class="cart-item-remove" @click="$store.cart.removeItem(item.key)" title="সরান">✕</button>
             </div>
           </div>
         </div>
@@ -126,7 +129,7 @@
           if(window.WA_FULL) {
             let msg = 'আমি অর্ডার করতে চাই 🛒\n\n';
             $store.cart.items.forEach(function(i){
-              msg += '📦 ' + i.name + ' × ' + i.qty + ' — ' + window.CURRENCY + (i.price * i.qty).toFixed(0) + '\n';
+              msg += '📦 ' + i.name + (i.size ? ' (সাইজ: ' + i.size + ')' : '') + ' × ' + i.qty + ' — ' + window.CURRENCY + (i.price * i.qty).toFixed(0) + '\n';
             });
             msg += '\n💰 মোট: ' + window.CURRENCY + $store.cart.total.toFixed(0);
             window.open('https://wa.me/' + window.WA_FULL + '?text=' + encodeURIComponent(msg), '_blank');

@@ -47,8 +47,8 @@
       {% if orders_chart %}
       <div class="bar-chart" id="orders-chart-container" style="height:140px;align-items:flex-end;gap:8px;display:flex;"></div>
       <div id="orders-chart" style="display:none;"
-           data-values="{{ orders_chart|map(attribute='cnt')|list|tojson }}"
-           data-labels="{{ orders_chart|map(attribute='day')|list|tojson }}"></div>
+           data-values='{{ orders_chart|map(attribute="cnt")|list|tojson }}'
+           data-labels='{{ orders_chart|map(attribute="day")|list|tojson }}'></div>
       {% else %}
       <p style="color:var(--admin-muted);font-size:.85rem;">এখনো কোনো অর্ডার নেই।</p>
       {% endif %}

@@ -39,6 +39,7 @@ window.__pd = {
   price: {{ product.price }},
   image: {{ (product.image or '') | tojson }}
 };
+window.__sizes = {{ size_list(product.sizes) | tojson }};
 </script>
 {% endblock %}
 
@@ -61,11 +62,24 @@ window.__pd = {
     <div class="product-detail-grid"
          x-data="{
            qty: 1,
+           sizes: window.__sizes,
+           size: '',
+           sizeError: false,
+           /* Returns the product payload, or null when a size is required but unpicked */
+           picked() {
+             if (this.sizes.length && !this.size) { this.sizeError = true; return null; }
+             this.sizeError = false;
+             return { ...window.__pd, size: this.size };
+           },
            addToCart() {
-             for (let i = 0; i < this.qty; i++) $store.cart.addItem(window.__pd);
+             const item = this.picked();
+             if (!item) return;
+             for (let i = 0; i < this.qty; i++) $store.cart.addItem(item);
            },
            orderNow() {
-             for (let i = 0; i < this.qty; i++) $store.cart.addItem(window.__pd);
+             const item = this.picked();
+             if (!item) return;
+             for (let i = 0; i < this.qty; i++) $store.cart.addItem(item);
              $store.cart.openCheckout();
            }
          }">
@@ -108,6 +122,22 @@ window.__pd = {
         {% endif %}
 
         {% if product.stock > 0 %}
+        <!-- Size selector -->
+        {% if size_list(product.sizes) %}
+        <div class="size-selector" :class="{ 'has-error': sizeError }">
+          <label>সাইজ নির্বাচন করুন: <span class="size-required">*</span></label>
+          <div class="size-options">
+            <template x-for="s in sizes" :key="s">
+              <button type="button" class="size-option"
+                      :class="{ active: size === s }"
+                      @click="size = s; sizeError = false"
+                      x-text="s"></button>
+            </template>
+          </div>
+          <p class="size-error-msg" x-show="sizeError" x-cloak>অনুগ্রহ করে একটি সাইজ নির্বাচন করুন</p>
+        </div>
+        {% endif %}
+
         <!-- Qty selector -->
         <div class="qty-selector">
           <label>পরিমাণ:</label>
@@ -141,7 +171,7 @@ window.__pd = {
         {% if settings.whatsapp %}
         <button class="btn-direct-order btn-wa-order"
           @click="
-            const msg = 'আমি এই পণ্য সম্পর্কে বিস্তারিত জানতে চাই 🙂\n\n📦 পণ্য: {{ product.name }}\n💰 দাম: {{ settings.currency_symbol }}{{ '%.0f'|format(product.price) }}\n🔗 লিংক: ' + window.location.href;
+            const msg = 'আমি এই পণ্য সম্পর্কে বিস্তারিত জানতে চাই 🙂\n\n📦 পণ্য: {{ product.name }}' + (size ? '\n📏 সাইজ: ' + size : '') + '\n💰 দাম: {{ settings.currency_symbol }}{{ '%.0f'|format(product.price) }}\n🔗 লিংক: ' + window.location.href;
             window.open('https://wa.me/' + window.WA_FULL + '?text=' + encodeURIComponent(msg), '_blank');
           ">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">

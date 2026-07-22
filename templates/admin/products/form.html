@@ -106,6 +106,36 @@
         </div>
       </div>
 
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header"><span class="card-title">সাইজ</span></div>
+        <div class="card-body">
+          <div class="form-group" style="margin-bottom:10px;">
+            <label>দ্রুত যোগ করুন</label>
+            <div class="size-presets">
+              {% for preset in ['S','M','L','XL','XXL','XXXL','Free Size','38','39','40','41','42','43'] %}
+              <button type="button" class="size-preset" data-size="{{ preset }}">{{ preset }}</button>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:8px;">
+            <label>নির্বাচিত সাইজ</label>
+            <div id="size-chips" class="size-chips"></div>
+            <p id="size-empty" class="size-hint">কোনো সাইজ যোগ করা হয়নি — এই পণ্যে সাইজ অপশন দেখাবে না।</p>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <div class="size-add-row">
+              <input type="text" class="form-control" id="size-custom"
+                     placeholder="নিজের সাইজ লিখুন (যেমন 32 ইঞ্চি)" autocomplete="off">
+              <button type="button" class="btn btn-secondary" id="size-add-btn">যোগ</button>
+            </div>
+            <input type="hidden" name="sizes" id="sizes-input"
+                   value="{{ product.sizes if product and product.sizes else '' }}">
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header"><span class="card-title">প্রকাশনা</span></div>
         <div class="card-body">
@@ -140,8 +170,89 @@
 {% endblock %}
 
 {% block extra_js %}
+<style>
+  .size-presets { display:flex; flex-wrap:wrap; gap:6px; }
+  .size-preset {
+    padding:6px 12px; border:1px solid var(--border,#e2e8f0); background:#fff;
+    border-radius:6px; font-size:.85rem; font-weight:600; cursor:pointer;
+    color:#475569; transition:all .15s;
+  }
+  .size-preset:hover  { border-color:var(--primary,#6c63ff); color:var(--primary,#6c63ff); }
+  .size-preset.picked { background:var(--primary,#6c63ff); border-color:var(--primary,#6c63ff); color:#fff; }
+
+  .size-chips { display:flex; flex-wrap:wrap; gap:6px; min-height:4px; }
+  .size-chip {
+    display:inline-flex; align-items:center; gap:6px; padding:6px 8px 6px 12px;
+    background:#eef2ff; color:#4338ca; border-radius:6px;
+    font-size:.85rem; font-weight:700;
+  }
+  .size-chip button {
+    border:none; background:none; color:#6366f1; cursor:pointer;
+    font-size:1rem; line-height:1; padding:0 2px; border-radius:4px;
+  }
+  .size-chip button:hover { background:#c7d2fe; color:#312e81; }
+
+  .size-hint { font-size:.8rem; color:#94a3b8; margin:6px 0 0; }
+  .size-add-row { display:flex; gap:8px; }
+  .size-add-row .form-control { flex:1; }
+</style>
 <script>
   // Pre-mark slug as edited if we're editing an existing product
   {% if product %}window._slugEdited = true;{% endif %}
+
+  // ── Size picker ──────────────────────────────────────────────────────────
+  (function () {
+    const hidden   = document.getElementById('sizes-input');
+    const chipsBox = document.getElementById('size-chips');
+    const emptyMsg = document.getElementById('size-empty');
+    const custom   = document.getElementById('size-custom');
+    const addBtn   = document.getElementById('size-add-btn');
+    const presets  = document.querySelectorAll('.size-preset');
+    if (!hidden) return;
+
+    let sizes = hidden.value.split(',').map(s => s.trim()).filter(Boolean);
+
+    function render() {
+      hidden.value = sizes.join(',');
+      chipsBox.innerHTML = '';
+      sizes.forEach((size, i) => {
+        const chip = document.createElement('span');
+        chip.className = 'size-chip';
+        chip.textContent = size;
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.textContent = '×';
+        x.title = 'সরান';
+        x.addEventListener('click', () => { sizes.splice(i, 1); render(); });
+        chip.appendChild(x);
+        chipsBox.appendChild(chip);
+      });
+      emptyMsg.style.display = sizes.length ? 'none' : 'block';
+      presets.forEach(p => p.classList.toggle(
+        'picked', sizes.some(s => s.toLowerCase() === p.dataset.size.toLowerCase())
+      ));
+    }
+
+    function addSize(value) {
+      const size = (value || '').trim();
+      if (!size) return;
+      if (sizes.some(s => s.toLowerCase() === size.toLowerCase())) return;
+      sizes.push(size);
+      render();
+    }
+
+    presets.forEach(p => p.addEventListener('click', () => {
+      const idx = sizes.findIndex(s => s.toLowerCase() === p.dataset.size.toLowerCase());
+      if (idx > -1) sizes.splice(idx, 1); else sizes.push(p.dataset.size);
+      render();
+    }));
+
+    addBtn.addEventListener('click', () => { addSize(custom.value); custom.value = ''; });
+    custom.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); addBtn.click(); }
+    });
+
+    render();
+  })();
 </script>
 {% endblock %}

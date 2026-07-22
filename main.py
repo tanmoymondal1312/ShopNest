@@ -169,6 +169,25 @@ def _wa_full(cc: str, num: str) -> str:
 templates.env.globals["wa_full"] = _wa_full
 
 
+def _clean_sizes(raw: str) -> str:
+    """Normalise a comma-separated size list: trim, drop blanks, dedupe, keep order."""
+    seen, out = set(), []
+    for part in (raw or "").split(","):
+        size = part.strip()
+        if size and size.lower() not in seen:
+            seen.add(size.lower())
+            out.append(size)
+    return ",".join(out)
+
+
+def _size_list(raw: str) -> list:
+    """Split a stored size string into a list for templates."""
+    return [s.strip() for s in (raw or "").split(",") if s.strip()]
+
+
+templates.env.globals["size_list"] = _size_list
+
+
 @app.exception_handler(NotAuthenticated)
 async def not_authenticated_handler(request: Request, exc: NotAuthenticated):
     return RedirectResponse("/admin/login", status_code=302)
@@ -454,6 +473,7 @@ async def create_order(request: Request):
                 "product_name": item["name"],
                 "price": item["price"],
                 "quantity": item["qty"],
+                "size": (item.get("size") or "").strip(),
             }
             for item in items
         ]
@@ -612,6 +632,7 @@ async def admin_product_new_save(
     old_price: str = Form(""),
     stock: int = Form(0),
     category_id: str = Form(""),
+    sizes: str = Form(""),
     is_active: str = Form("0"),
     is_featured: str = Form("0"),
     image: UploadFile = File(None),
@@ -634,6 +655,7 @@ async def admin_product_new_save(
             "stock": stock,
             "category_id": int(category_id) if category_id.isdigit() else None,
             "image": image_filename,
+            "sizes": _clean_sizes(sizes),
             "is_active": 1 if is_active == "1" else 0,
             "is_featured": 1 if is_featured == "1" else 0,
         }
@@ -670,6 +692,7 @@ async def admin_product_edit_save(
     old_price: str = Form(""),
     stock: int = Form(0),
     category_id: str = Form(""),
+    sizes: str = Form(""),
     is_active: str = Form("0"),
     is_featured: str = Form("0"),
     image: UploadFile = File(None),
@@ -696,6 +719,7 @@ async def admin_product_edit_save(
             "stock": stock,
             "category_id": int(category_id) if category_id.isdigit() else None,
             "image": image_filename,
+            "sizes": _clean_sizes(sizes),
             "is_active": 1 if is_active == "1" else 0,
             "is_featured": 1 if is_featured == "1" else 0,
         }
