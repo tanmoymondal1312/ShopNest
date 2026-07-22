@@ -1236,6 +1236,13 @@ input, select, textarea { font-family: var(--font); }
 }
 .btn-direct-order:hover  { background: var(--accent); color: #fff; }
 .btn-direct-order:active { transform: scale(.98); }
+.btn-order-now {
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: #fff;
+}
+.btn-order-now:hover { background: #d97706; border-color: #d97706; color: #fff; }
+
 .btn-wa-order {
   border-color: #16a34a;
   color: #16a34a;
