@@ -132,15 +132,6 @@
         </svg>
       </button>
 
-      <!-- Contact / WhatsApp -->
-      {% if settings.whatsapp %}
-      <a href="https://wa.me/{{ wa_full(settings.whatsapp_cc, settings.whatsapp) }}" class="navbar-wa-btn"
-         target="_blank" rel="noopener" aria-label="যোগাযোগ করুন">
-        <img src="/static/icons/phone.svg" alt="যোগাযোগ" class="navbar-wa-icon">
-        <span class="navbar-wa-btn-text">যোগাযোগ</span>
-      </a>
-      {% endif %}
-
       <!-- Cart pill -->
       <button class="cart-btn" @click="$store.cart.openDrawer()" aria-label="কার্ট দেখুন">
         <span class="cart-btn-icon">
@@ -152,6 +143,15 @@
         <span class="cart-badge" x-text="$store.cart.count"
               x-show="$store.cart.count > 0" style="display:none;">0</span>
       </button>
+
+      <!-- Contact / WhatsApp (number from Admin → Settings) -->
+      {% if settings.whatsapp %}
+      <a href="https://wa.me/{{ wa_full(settings.whatsapp_cc, settings.whatsapp) }}" class="navbar-wa-btn"
+         target="_blank" rel="noopener" aria-label="যোগাযোগ করুন">
+        <img src="/static/icons/phone.svg" alt="যোগাযোগ" class="navbar-wa-icon">
+        <span class="navbar-wa-btn-text">যোগাযোগ</span>
+      </a>
+      {% endif %}
 
     </div>
   </div>
