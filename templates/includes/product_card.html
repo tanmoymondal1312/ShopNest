@@ -30,19 +30,6 @@
       <span class="price-old">{{ settings.currency_symbol }}{{ "%.0f"|format(product.old_price) }}</span>
       {% endif %}
     </div>
-    {% if not size_list(product.sizes) %}
-    {# Size products show no button — the card itself links to the product page #}
-    <button class="btn-add-cart"
-      {% if product.stock == 0 %}disabled{% endif %}
-      @click="$store.cart.addItem({
-        id: {{ product.id }},
-        slug: '{{ product.slug }}',
-        name: '{{ product.name | replace("'", "\\'") }}',
-        price: {{ product.price }},
-        image: '{{ product.image or "" }}'
-      })">
-      {% if product.stock == 0 %}স্টক নেই{% else %}কার্টে যোগ করুন{% endif %}
-    </button>
-    {% endif %}
+    {# No quick-add button — the whole card links to the product page #}
   </div>
 </div>

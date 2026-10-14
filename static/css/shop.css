@@ -1047,22 +1047,6 @@ input, select, textarea { font-family: var(--font); }
 }
 .price-current { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
 .price-old { font-size: .85rem; color: var(--text-muted); text-decoration: line-through; }
-.btn-add-cart {
-  margin-top: auto;
-  width: 100%;
-  padding: 10px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  font-size: .9rem;
-  transition: background var(--transition), transform var(--transition);
-}
-.btn-add-cart:hover:not(:disabled) { background: var(--accent-dark); }
-.btn-add-cart:active:not(:disabled) { transform: scale(.97); animation: pulse .2s ease; }
-.btn-add-cart:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
-@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03); } }
 
 /* ── FEATURED ROW — single horizontal scroll, compact ~3/5-size cards ───────── */
 .featured-scroll {
@@ -1074,8 +1058,8 @@ input, select, textarea { font-family: var(--font); }
   -webkit-overflow-scrolling: touch;
   padding-bottom: 6px;
   scrollbar-width: none;
-  /* flex-start → cards without the add-to-cart button keep their natural
-     (shorter) height instead of stretching to match the button-ful cards */
+  /* flex-start → cards keep natural height; names vary 1–2 lines so a
+     stretched row would pad the shorter ones with dead space */
   align-items: flex-start;
 }
 .featured-scroll::-webkit-scrollbar { display: none; }
@@ -1097,7 +1081,6 @@ input, select, textarea { font-family: var(--font); }
 }
 .featured-scroll .price-current { font-size: .9rem; }
 .featured-scroll .price-old     { font-size: .72rem; }
-.featured-scroll .btn-add-cart  { padding: 7px; font-size: .75rem; }
 /* Tiny badges for compact cards */
 /* বিশেষ — top left */
 .featured-scroll .badge-featured {
@@ -1141,7 +1124,6 @@ input, select, textarea { font-family: var(--font); }
   }
   .featured-scroll .price-current { font-size: .78rem; }
   .featured-scroll .price-old     { font-size: .62rem; }
-  .featured-scroll .btn-add-cart  { display: none; }
   .featured-scroll .badge-featured {
     font-size: .5rem;
     padding: 1px 4px;
