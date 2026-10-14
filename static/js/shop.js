@@ -128,6 +128,23 @@ document.addEventListener('alpine:init', () => {
       return window.CURRENCY + price.toFixed(2);
     },
   });
+
+  // ── Auth (sign-up) modal — UI shell only, wired to backend later ──
+  Alpine.store('auth', {
+    open: false,
+
+    openModal() {
+      const cart = Alpine.store('cart');
+      if (cart) cart.closeDrawer();
+      this.open = true;
+      document.body.style.overflow = 'hidden';
+    },
+
+    close() {
+      this.open = false;
+      document.body.style.overflow = '';
+    },
+  });
 });
 
 // ── Checkout form submission ───────────────────────────────────────────────────
@@ -274,11 +291,13 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(() => loadProductsGrid('', 1));
   }
 
-  // Close cart on Escape
+  // Close cart / auth modal on Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      const auth = Alpine.store('auth');
       const cart = Alpine.store('cart');
-      if (cart.checkoutOpen) cart.closeCheckout();
+      if (auth && auth.open) auth.close();
+      else if (cart.checkoutOpen) cart.closeCheckout();
       else if (cart.open) cart.closeDrawer();
     }
   });
