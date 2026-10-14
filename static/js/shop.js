@@ -280,6 +280,17 @@ document.addEventListener('DOMContentLoaded', () => {
     checkEnd(); // run on load
   }
 
+  // ── Featured row: show fade + arrow hint only when it actually overflows ────
+  const featRow = document.querySelector('.featured-scroll');
+  const featWrap = featRow?.closest('.featured-scroll-wrap');
+  if (featRow && featWrap) {
+    const checkOverflow = () => {
+      featWrap.classList.toggle('is-scrollable', featRow.scrollWidth > featRow.clientWidth + 4);
+    };
+    window.addEventListener('resize', checkOverflow);
+    checkOverflow(); // run on load
+  }
+
   // ── Homepage: category pill interception + initial grid load ──────────────
   const catPills = document.getElementById('cat-pills');
   if (catPills) {
