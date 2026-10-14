@@ -64,7 +64,8 @@
           <div class="hp-card-img">
             {% if product.image %}
             <img src="/static/uploads/products/{{ product.image }}"
-                 alt="{{ product.name }}{% if settings.seo_alt_suffix %} — {{ settings.seo_alt_suffix }}{% endif %}" loading="eager" fetchpriority="high">
+                 alt="{{ product.name }}{% if settings.seo_alt_suffix %} — {{ settings.seo_alt_suffix }}{% endif %}"
+                 {% if loop.first %}loading="eager" fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %}>
             {% else %}
             <div class="hp-card-no-img">
               <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">

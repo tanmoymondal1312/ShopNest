@@ -789,7 +789,16 @@ input, select, textarea { font-family: var(--font); }
 .hp-nav-r { right: 6px; }
 
 /* ── Dots ── */
-.hp-dots { display: flex; gap: 5px; flex-shrink: 0; }
+.hp-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: 6px;
+  column-gap: 5px;
+  max-width: 100%;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
 .hp-dot {
   width: 6px; height: 6px;
   border-radius: 99px; border: none;

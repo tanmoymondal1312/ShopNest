@@ -1113,7 +1113,7 @@ async def admin_hero_slider(request: Request, admin: str = Depends(require_admin
         s = await get_settings(db)
         hero_rows = await fetch_all_hero_rows(db)
         hero_pids = {row["product_id"] for row in hero_rows}
-        all_products = await fetch_products(db, active_only=True, limit=500)
+        all_products = await fetch_products(db, active_only=True, limit=5000)
         available = [p for p in all_products if p["id"] not in hero_pids]
         return templates.TemplateResponse(request, "admin/hero_slider.html", {
             **admin_ctx(request, s),
